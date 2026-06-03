@@ -1,0 +1,464 @@
+================================================================
+  GARAGE EVOLVED — GUIDA AL PROGETTO
+  Documento di studio: architettura, scelte e spiegazioni
+================================================================
+
+
+----------------------------------------------------------------
+  DATABASE — vehicles_db (PostgreSQL)
+----------------------------------------------------------------
+
+Abbiamo 8 tabelle:
+
+  vehicle                   → tabella principale, contiene i dati comuni di ogni veicolo
+  cars                      → dati specifici delle automobili (FK su vehicle)
+  motorbikes                → dati specifici delle moto (FK su vehicle)
+  bikes                     → dati specifici delle bici (FK su vehicle)
+  vehicle_types             → lookup: tipi di veicolo (SUV, Berlina, Moto...)
+  vehicle_brands            → lookup: marche (Fiat, BMW, Tesla...)
+  vehicle_models            → lookup: modelli (Panda, Golf...) — collegati al brand
+  vehicle_alimentation_types → lookup: carburanti (Benzina, Elettrico...)
+
+  Le tabelle "lookup" contengono dati fissi di riferimento
+  (non si inseriscono dall'app, esistono già nel DB).
+
+  Perché questa struttura?
+  Separare i dati comuni (vehicle) da quelli specifici (cars/motorbikes/bikes)
+  evita colonne vuote. Una bici non ha targa né cilindrata — metterle
+  tutte in una tabella sola sarebbe confuso e sprecato.
+
+
+----------------------------------------------------------------
+  PACKAGE STRUCTURE — com.betacom
+----------------------------------------------------------------
+
+  config/       → gestione connessione e query al DB
+  objects/      → classi Java che rappresentano i dati (Vehicle, Car...)
+  dao/          → accesso al DB per ogni tabella
+  services/     → logica di business (coordina i DAO)
+  exception/    → gestione errori del progetto
+  utils/        → metodi di supporto (conversioni date ecc.)
+
+
+----------------------------------------------------------------
+  PACKAGE: exception/
+----------------------------------------------------------------
+
+  FILE: AppException.java
+
+  Cos'è:
+    Una RuntimeException personalizzata usata in tutto il progetto.
+
+  Perché RuntimeException e non Exception?
+    Con "Exception" normale saresti costretto a scrivere "throws Exception"
+    su ogni metodo. Con RuntimeException puoi lanciarla ovunque senza
+    dichiarla. Il codice rimane più pulito e leggibile.
+
+  Quando viene usata:
+    Ogni volta che qualcosa va storto (connessione fallita, query errata,
+    file properties non trovato) lanciamo AppException con un messaggio
+    descrittivo. Così invece di tanti tipi di eccezione diversi, abbiamo
+    un solo punto di errore chiaro.
+
+
+----------------------------------------------------------------
+  PACKAGE: config/
+----------------------------------------------------------------
+
+  FILE: SQLConfiguration.java
+
+  Cos'è:
+    Il "portiere" del database. Gestisce la connessione e le properties.
+    Usa il pattern SINGLETON — esiste una sola istanza per tutta l'app.
+
+  Perché Singleton?
+    Aprire una connessione al DB è costoso. Se ogni classe ne aprisse una
+    propria, il DB si sovraccaricherebbe. Con il Singleton la connessione
+    viene aperta una volta sola e condivisa da tutti.
+
+  Come funziona:
+    1. getInstance()     → restituisce sempre la stessa istanza
+    2. loadProperties()  → legge sql.properties (url, user, password, driver)
+                           e query.properties (tutte le query SQL)
+    3. getConnection()   → apre la connessione se non esiste ancora,
+                           altrimenti restituisce quella già aperta
+    4. getQuery(key)     → dato il nome di una query (es. "query.car.findAll")
+                           restituisce la stringa SQL corrispondente
+
+  Gestione transazioni:
+    setTransaction() → disabilita l'autocommit (apre una transazione manuale)
+    commit()         → salva definitivamente tutte le operazioni
+    rollback()       → annulla tutto in caso di errore
+    setAutoCommit()  → riabilita il salvataggio automatico
+
+  File letti:
+    src/sql.properties    → url, user, password, driver PostgreSQL
+    src/query.properties  → tutte le query SQL del progetto
+
+
+  FILE: DBManager.java
+
+  Cos'è:
+    Il "traduttore" tra Java e il database. Contiene solo 3 metodi
+    che coprono tutti i casi possibili.
+
+  Perché 3 metodi invece di tanti?
+    In Basics c'erano 6+ metodi che facevano cose simili con piccole
+    variazioni. Qui li abbiamo condensati in 3 usando i "varargs" (Object...)
+    che accettano un numero variabile di parametri senza creare array.
+
+  I 3 metodi:
+
+    query(sql, params...)
+      → per le SELECT che ritornano più righe
+      → restituisce List<Map<String, Object>>
+         ovvero una lista dove ogni elemento è una riga del DB
+         e ogni riga è una mappa colonna→valore
+      → esempio: query("select * from cars") ritorna tutte le auto
+
+    get(sql, params...)
+      → per le SELECT che ritornano una riga sola (findById)
+      → internamente chiama query() e prende il primo risultato
+      → restituisce null se non trova nulla
+
+    save(sql, returnKey, params...)
+      → per INSERT, UPDATE, DELETE
+      → returnKey = true  → dopo un INSERT ritorna la PK generata dal DB
+      → returnKey = false → ritorna il numero di righe modificate
+
+  Come funziona internamente:
+    - setParams() → associa i valori ai ? nella query (PreparedStatement)
+                    es. "where id = ?" con valore 5 diventa "where id = 5"
+    - toList()    → converte il ResultSet (risposta grezza del DB)
+                    in una lista di Map leggibili in Java
+
+
+----------------------------------------------------------------
+  PACKAGE: objects/
+----------------------------------------------------------------
+
+  FILE: Vehicle.java (classe ASTRATTA)
+
+  Cos'è:
+    La classe base che contiene i campi comuni a tutti i veicoli.
+    È ASTRATTA perché un "veicolo generico" non esiste nella realtà —
+    esiste una macchina, una moto, una bici. Non puoi fare "new Vehicle()".
+
+  Campi:
+    id              → chiave primaria dal DB
+    vehicleType     → es. "SUV", "Berlina" (dalla tabella vehicle_types)
+    numberOfWheels  → es. 4, 2, 3
+    alimentationType → es. "Benzina", "Elettrico"
+    category        → es. "Luxury", "Commerciale"
+    color           → es. "Rosso", "Nero metallizzato"
+    gears           → es. 6, 8, 0 (elettrico)
+    brand           → es. "Ferrari", "Fiat"
+    productionYear  → es. 2023, 1998
+    model           → es. "Panda", "Model 3"
+
+  Annotazioni Lombok usate:
+    @Getter         → genera tutti i metodi getXxx() automaticamente
+    @Setter         → genera tutti i metodi setXxx() automaticamente
+    @SuperBuilder   → genera il Builder per creare oggetti in modo fluente
+                      (usato @SuperBuilder invece di @Builder perché
+                       la classe è astratta e serve alle sottoclassi)
+    @ToString       → genera il metodo toString() per stampare l'oggetto
+    @NoArgsConstructor → genera il costruttore senza parametri
+
+
+  FILE: Car.java / Motorbike.java / Bike.java
+
+  Cos'è:
+    Le 3 sottoclassi concrete che estendono Vehicle.
+    Ognuna aggiunge i propri campi specifici.
+
+  Perché "extends Vehicle"?
+    Car È UN veicolo + ha targa, cilindrata, porte.
+    Motorbike È UN veicolo + ha targa, cilindrata.
+    Bike È UN veicolo + ha tipo freni, sospensioni, pieghevole.
+    Questo si chiama EREDITARIETÀ — le sottoclassi ereditano tutti
+    i campi del padre e ci aggiungono i propri.
+
+  Campi aggiuntivi Car:
+    licensePlate  → es. "AB123CD"
+    cc            → es. 1200, 2000
+    numberOfDoors → es. 2, 4, 5
+
+  Campi aggiuntivi Motorbike:
+    licensePlate  → es. "AB123CD"
+    cc            → es. 500, 900, 1200
+
+  Campi aggiuntivi Bike:
+    numberOfGears  → es. 3, 6, 21
+    brakeType      → es. "Disco", "V-Brake"
+    suspensionType → es. "Rigida", "Anteriore", "Full"
+    foldable       → true o false
+
+  toString() manuale nelle sottoclassi:
+    Invece di @ToString(callSuper=true) che dava problemi con @SuperBuilder,
+    abbiamo scritto toString() a mano chiamando super.toString()
+    per includere anche i campi di Vehicle nel risultato.
+
+  Come si crea un oggetto con il Builder:
+    Car car = Car.builder()
+        .brand("Fiat")           // campo di Vehicle
+        .model("Panda")          // campo di Vehicle
+        .color("Rosso")          // campo di Vehicle
+        .licensePlate("AB123CD") // campo di Car
+        .numberOfDoors(5)        // campo di Car
+        .build();
+
+
+----------------------------------------------------------------
+  FILE DI CONFIGURAZIONE
+----------------------------------------------------------------
+
+  src/sql.properties
+    url=jdbc:postgresql://localhost:5432/vehicles_db
+    user=postgres
+    pwd=...
+    driver=org.postgresql.Driver
+
+    Contiene le credenziali di accesso al DB.
+    Letto da SQLConfiguration al primo avvio.
+
+  src/query.properties
+    Contiene tutte le query SQL organizzate per tabella.
+    Formato: nomeLogico=query SQL
+    Esempio: query.car.findAll=select * from cars
+
+    Perché un file separato per le query?
+    Se devi modificare una query non tocchi il codice Java —
+    modifichi solo il file. Più sicuro, più ordinato.
+
+    Organizzazione:
+      query.vehicle.*         → query sulla tabella vehicle
+      query.car.*             → query sulla tabella cars
+      query.motorbike.*       → query sulla tabella motorbikes
+      query.bike.*            → query sulla tabella bikes
+      query.vehicleType.*     → query sulla tabella vehicle_types (lookup)
+      query.vehicleBrand.*    → query sulla tabella vehicle_brands (lookup)
+      query.vehicleModel.*    → query sulla tabella vehicle_models (lookup)
+      query.vehicleAlim.*     → query sulla tabella vehicle_alimentation_types
+
+
+----------------------------------------------------------------
+  PACKAGE: dao/
+----------------------------------------------------------------
+
+  Il layer DAO (Data Access Object) è l'unico punto del progetto
+  che parla con il database. È diviso in due sub-package:
+
+  dao/lookup/    → tabelle fisse di riferimento, SOLA LETTURA
+  dao/entity/    → tabelle operative, LETTURA E SCRITTURA
+
+
+  SUB-PACKAGE: dao/lookup/
+  -------------------------
+  Contiene i DAO per le tabelle che hanno dati fissi (non cambiano
+  dall'app). Hanno solo findAll() e findById().
+
+    VehicleTypeDao.java           → legge vehicle_types
+    VehicleBrandDao.java          → legge vehicle_brands
+    VehicleModelDao.java          → legge vehicle_models (con findByBrand)
+    VehicleAlimentationTypeDao.java → legge vehicle_alimentation_types
+
+  Esempio di utilizzo:
+    List<VehicleType> types = vehicleTypeDao.findAll();
+    → ritorna: ["SUV", "Berlina", "Moto", ...]
+
+
+  SUB-PACKAGE: dao/entity/
+  -------------------------
+  Contiene i DAO per le tabelle principali su cui l'app scrive.
+  Hanno findAll(), findById(), insert(), delete().
+
+    VehicleDao.java    → gestisce la tabella vehicle
+    CarDao.java        → gestisce la tabella cars
+    MotorbikeDao.java  → gestisce la tabella motorbikes
+    BikeDao.java       → gestisce la tabella bikes
+
+  ATTENZIONE — ordine obbligatorio per gli insert:
+    Per aggiungere una macchina servono DUE insert in sequenza:
+    1. VehicleDao.insert()  → inserisce i dati comuni in "vehicle"
+    2. CarDao.insert()      → inserisce i dati specifici in "cars"
+                              usando la PK generata dal passo 1
+    Questa coordinazione è compito del SERVICE, non del DAO.
+
+
+  Come funziona un DAO internamente:
+    1. Prende la query da SQLConfiguration.getQuery("chiave")
+    2. La esegue tramite DBManager.query() o DBManager.save()
+    3. Converte il risultato (Map<String,Object>) nell'oggetto Java
+       corrispondente (es. Car, Motorbike...)
+
+  Flusso completo di una chiamata:
+    CarDao.findAll()
+        → DBManager.query("select * from cars")
+            → PreparedStatement eseguito su PostgreSQL
+                → ResultSet convertito in List<Map<String,Object>>
+                    → ogni Map mappata in un oggetto Car
+                        → ritorna List<Car>
+
+
+----------------------------------------------------------------
+  PACKAGE: services/
+----------------------------------------------------------------
+
+  Il service sta sopra i DAO e contiene la LOGICA DI BUSINESS.
+  I DAO sanno solo leggere/scrivere — il service sa COSA fare.
+
+    VehicleService.java → coordina VehicleDao + CarDao/MotorbikeDao/BikeDao
+
+  Esempio:
+    VehicleService.insertCar(car)
+      │
+      ├── VehicleDao.insert()  → salva i campi comuni (colore, marca...)
+      └── CarDao.insert()      → salva targa, cilindrata, porte
+
+
+----------------------------------------------------------------
+  FLUSSO COMPLETO DELL'APPLICAZIONE
+----------------------------------------------------------------
+
+  MainVehicleEvolved
+        ↓
+    VehicleService         ← "cosa voglio fare"
+        ↓
+    VehicleDao / CarDao    ← "come accedo al DB"
+        ↓
+    DBManager              ← esegue la query
+        ↓
+    SQLConfiguration       ← gestisce la connessione
+        ↓
+    vehicles_db (PostgreSQL)
+
+
+----------------------------------------------------------------
+  PACKAGE: services/
+----------------------------------------------------------------
+
+  FILE: VehicleService.java
+
+  Coordina i DAO e gestisce la logica di business.
+  È l'unica classe che il Main dovrebbe chiamare direttamente.
+
+  Metodi di lettura (READ):
+    findAllCars() / findAllMotorbikes() / findAllBikes()
+    findCarById(id) / findMotorbikeById(id) / findBikeById(id)
+    findAllTypes() / findAllBrands() / findAllModels()
+    findModelsByBrand(idBrand) / findAllAlimentations()
+
+  Metodi di inserimento (INSERT):
+    insertCar(typeId, modelId, alimentId, brandId, color,
+              wheels, gears, year, plate, cc, doors)
+    insertMotorbike(...)
+    insertBike(...)
+
+    Ogni insert usa una transazione:
+      1. VehicleDao.insert()  → salva i dati comuni, ottiene PK
+      2. CarDao.insert()      → salva i dati specifici con quella PK
+      Se qualcosa va storto → rollback automatico
+
+  Metodi di cancellazione (DELETE):
+    deleteCar(idCar, idVehicle)
+    deleteMotorbike(idMotorbike, idVehicle)
+    deleteBike(idBike, idVehicle)
+
+    Ordine obbligatorio:
+      1. Cancella prima il record specifico (cars/motorbikes/bikes)
+      2. Poi cancella il record padre (vehicle)
+      Invertire l'ordine causa errore FK dal DB.
+
+
+----------------------------------------------------------------
+  MAIN — MainVehicleEvolved.java
+----------------------------------------------------------------
+
+  Punto di ingresso dell'applicazione.
+  Dimostra il funzionamento completo:
+
+  1. Legge tutti i tipi, brand e alimentazioni (lookup)
+  2. Inserisce un'auto di test (Fiat Panda, Rosso, 2022)
+  3. Legge l'auto appena inserita per verifica
+  4. Lista tutte le auto presenti nel DB
+  5. Chiude la connessione
+
+  Output verificato — esempio di auto inserita e letta:
+    Car [Vehicle(id=1, vehicleType=Utilitaria, numberOfWheels=4,
+    alimentationType=Benzina, color=Rosso, gears=5, brand=Fiat,
+    productionYear=2022, model=Panda),
+    licensePlate=AB123CD, cc=1200, numberOfDoors=5]
+
+
+----------------------------------------------------------------
+  STATO DEL PROGETTO — COMPLETATO
+----------------------------------------------------------------
+
+  ✅ config/        SQLConfiguration + DBManager
+  ✅ exception/     AppException
+  ✅ objects/       Vehicle (astratta) + Car, Motorbike, Bike
+                    + VehicleType, VehicleBrand, VehicleModel,
+                      VehicleAlimentationType
+  ✅ dao/lookup/    VehicleTypeDao, VehicleBrandDao,
+                    VehicleModelDao, VehicleAlimentationTypeDao
+  ✅ dao/entity/    VehicleDao (astratta), CarDao,
+                    MotorbikeDao, BikeDao
+  ✅ services/      VehicleService
+  ✅ Main           MainVehicleEvolved — testato e funzionante
+  ✅ DB             vehicles_db su PostgreSQL — connesso e operativo
+
+
+----------------------------------------------------------------
+  MIGLIORAMENTI AGGIUNTIVI (richiesti dall'utente)
+----------------------------------------------------------------
+
+  1. PACKAGE data/ — pulizia del Main
+
+     Il Main era troppo pieno di logica di inserimento.
+     Creato il sub-package com.betacom.data con 3 classi:
+
+       CarData.java       → inserisce e stampa auto di test
+       MotorbikeData.java → inserisce e stampa moto di test
+       BikeData.java      → inserisce e stampa bici di test
+
+     Ogni classe ha un metodo statico load(VehicleService service).
+     Il Main ora si limita a chiamare:
+       CarData.load(service);
+       MotorbikeData.load(service);
+       BikeData.load(service);
+
+     Risultato: Main leggibile in meno di 20 righe.
+
+  2. CLASSE utils/Printer.java — log leggibili
+
+     Invece di stampare gli oggetti con toString() su una riga sola,
+     Printer formatta ogni veicolo come un blocco visivo:
+
+       ─────────────────────────────────────
+         AUTO  —  Fiat Panda
+       ─────────────────────────────────────
+         Colore      : Rosso
+         Targa       : AB123CD
+         Cilindrata  : 1200 cc
+         ...
+
+     Perché una classe separata e non un metodo nell'oggetto?
+     Gli oggetti (Car, Motorbike, Bike) non devono sapere COME
+     si stampano — questo è compito di chi li usa. Printer è il
+     punto unico responsabile della presentazione (principio
+     di singola responsabilità).
+
+     Metodi disponibili:
+       Printer.printCar(car)
+       Printer.printMotorbike(moto)
+       Printer.printBike(bici)
+       Printer.printCars(lista)
+       Printer.printMotorbikes(lista)
+       Printer.printBikes(lista)
+       Printer.printTypes(lista)
+       Printer.printBrands(lista)
+       Printer.printAlimentations(lista)
+       Printer.section("TITOLO")  → separatore visivo
+
+================================================================
