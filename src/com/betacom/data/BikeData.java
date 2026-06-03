@@ -12,8 +12,9 @@ public class BikeData {
 	public static void load(VehicleService service) {
 		log.info("--- Demo bici temporanee: insert → lettura → delete ---");
 
-		int id1 = service.insertBike(6, 11, 5, 7,  "Verde",  2, 0, 2023, "Disco",   "Full",      false);
-		int id2 = service.insertBike(6, 12, 5, 12, "Bianca", 2, 0, 2022, "V-Brake", "Anteriore", true);
+		// Bianchi Oltre RC bici da corsa / Trek Domane city bike
+		int id1 = service.insertBike(11, 51, 7, 30, "Celeste", 2, 11, 2023, "Disco",   "Rigida",    false);
+		int id2 = service.insertBike(13, 48, 5, 28, "Nero",    2, 8,  2022, "V-Brake", "Anteriore", true);
 
 		Bike b1 = service.findBikeById(id1);
 		Bike b2 = service.findBikeById(id2);

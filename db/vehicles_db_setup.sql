@@ -1,5 +1,5 @@
 -- =============================================
--- Script creazione tabelle vehicles_db
+-- Setup completo vehicles_db
 -- =============================================
 
 CREATE TABLE vehicle_types (
@@ -58,7 +58,6 @@ CREATE TABLE bikes (
   foldable bool
 );
 
--- Foreign Keys
 ALTER TABLE vehicle ADD FOREIGN KEY (id_vehicle_type) REFERENCES vehicle_types (id_vehicle_type);
 ALTER TABLE vehicle ADD FOREIGN KEY (id_vehicle_model) REFERENCES vehicle_models (id_vehicle_model);
 ALTER TABLE vehicle ADD FOREIGN KEY (id_vehicle_alimentation_type) REFERENCES vehicle_alimentation_types (id_vehicle_alimentation_type);
@@ -68,45 +67,80 @@ ALTER TABLE cars ADD FOREIGN KEY (id_vehicle) REFERENCES vehicle (id_vehicle);
 ALTER TABLE motorbikes ADD FOREIGN KEY (id_vehicle) REFERENCES vehicle (id_vehicle);
 ALTER TABLE bikes ADD FOREIGN KEY (id_vehicle) REFERENCES vehicle (id_vehicle);
 
--- Dati di lookup
+-- =============================================
+-- Tipi veicolo
+-- ID: 1-10 auto/moto/scooter, 11-13 bici
+-- =============================================
 INSERT INTO vehicle_types (vehicle_type_name) VALUES
-  ('Utilitaria'), ('SUV'), ('Berlina'), ('Sportiva'),
-  ('Moto'), ('Scooter'), ('Furgone'), ('Pickup'), ('Minivan'), ('Camper');
+  ('Utilitaria'),('SUV'),('Berlina'),('Sportiva'),
+  ('Moto'),('Scooter'),('Furgone'),('Pickup'),('Minivan'),('Camper'),
+  ('Bici da Corsa'),('Mountain Bike'),('City Bike');
 
+-- =============================================
+-- Alimentazioni
+-- ID: 1-6 standard, 7 = nessuna (bici a pedale)
+-- =============================================
 INSERT INTO vehicle_alimentation_types (vehicle_alimentation_type_name) VALUES
-  ('Benzina'), ('Diesel'), ('GPL'), ('Metano'), ('Elettrico'), ('Ibrida');
+  ('Benzina'),('Diesel'),('GPL'),('Metano'),('Elettrico'),('Ibrida'),('Nessuna');
 
+-- =============================================
+-- Brand auto  (1-20)
+-- Brand moto  (21-27)
+-- Brand bici  (28-30)
+-- =============================================
 INSERT INTO vehicle_brands (vehicle_brand_name) VALUES
-  ('Fiat'), ('Alfa Romeo'), ('Lancia'), ('Ferrari'), ('Lamborghini'),
-  ('Maserati'), ('Audi'), ('BMW'), ('Mercedes-Benz'), ('Volkswagen'),
-  ('Porsche'), ('Toyota'), ('Honda'), ('Nissan'), ('Ford'),
-  ('Tesla'), ('Peugeot'), ('Renault'), ('Hyundai'), ('Kia');
+  ('Fiat'),('Alfa Romeo'),('Lancia'),('Ferrari'),('Lamborghini'),
+  ('Maserati'),('Audi'),('BMW'),('Mercedes-Benz'),('Volkswagen'),
+  ('Porsche'),('Toyota'),('Honda'),('Nissan'),('Ford'),
+  ('Tesla'),('Peugeot'),('Renault'),('Hyundai'),('Kia'),
+  ('Ducati'),('Kawasaki'),('Yamaha'),('Triumph'),('KTM'),
+  ('Harley-Davidson'),('Aprilia'),
+  ('Trek'),('Giant'),('Bianchi');
 
+-- =============================================
+-- Modelli auto (1-35)
+-- Modelli moto (36-46)
+-- Modelli bici (47-52)
+-- =============================================
 INSERT INTO vehicle_models (vehicle_model_name, id_vehicle_brand) VALUES
-  ('Panda', 1), ('500x', 1), ('Punto', 1), ('Bravo', 1),
-  ('Giulia', 2), ('Stelvio', 2), ('Giulietta', 2),
-  ('Ypsilon', 3),
-  ('SF90 Stradale', 4),
-  ('Huracán', 5), ('Aventador', 5), ('Urus', 5),
-  ('Grecale', 6), ('Ghibli', 6),
-  ('A4', 7), ('Q5', 7),
-  ('Serie 3', 8),
-  ('Classe A', 9),
-  ('Golf', 10), ('Tiguan', 10),
-  ('911 Carrera', 11), ('Cayenne', 11),
-  ('Yaris', 12), ('Corolla', 12),
-  ('Civic', 13), ('Jazz', 13),
-  ('Mustang', 15), ('Fiesta', 15),
-  ('Model 3', 16), ('Model S', 16), ('Model X', 16),
-  ('208', 17),
-  ('Clio', 18),
-  ('Tucson', 19),
-  ('Sportage', 20);
+  -- Auto
+  ('Panda',1),('500x',1),('Punto',1),('Bravo',1),
+  ('Giulia',2),('Stelvio',2),('Giulietta',2),
+  ('Ypsilon',3),
+  ('SF90 Stradale',4),
+  ('Huracan',5),('Aventador',5),('Urus',5),
+  ('Grecale',6),('Ghibli',6),
+  ('A4',7),('Q5',7),
+  ('Serie 3',8),
+  ('Classe A',9),
+  ('Golf',10),('Tiguan',10),
+  ('911 Carrera',11),('Cayenne',11),
+  ('Yaris',12),('Corolla',12),
+  ('Civic',13),('Jazz',13),
+  ('Mustang',15),('Fiesta',15),
+  ('Model 3',16),('Model S',16),('Model X',16),
+  ('208',17),
+  ('Clio',18),
+  ('Tucson',19),
+  ('Sportage',20),
+  -- Moto
+  ('Panigale V4',21),
+  ('Ninja ZX-10R',22),
+  ('YZF-R1',23),('MT-09',23),
+  ('Speed Triple',24),('Tiger 900',24),
+  ('Duke 390',25),('Adventure 1290',25),
+  ('Fat Boy',26),
+  ('RSV4',27),
+  ('CBR600RR',13),('Africa Twin',13),
+  -- Bici
+  ('Emonda SLR',28),('Domane AL',28),
+  ('TCR Advanced',29),('Trance X',29),
+  ('Oltre RC',30),('Infinito CV',30);
 
 -- =============================================
 -- Dati permanenti di esempio
--- Questi record sono sempre presenti nel DB
--- Le targhe TMP*** sono riservate ai test runtime
+-- Targhe AA/BB/CC/DD/EE = permanenti
+-- Targhe TMP*** = test runtime (vengono cancellate)
 -- =============================================
 
 -- Auto permanenti (3)
@@ -119,23 +153,23 @@ WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alim
 INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle,'BB000BB',2000,4 FROM v;
 
 WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (3,30,5,16,'Bianco',4,1,'2023-01-01') RETURNING id_vehicle)
+  VALUES (3,29,5,16,'Bianco',4,1,'2023-01-01') RETURNING id_vehicle)
 INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle,'CC000CC',0,4 FROM v;
 
--- Moto permanenti (2)
+-- Moto permanenti (2) — brand e modelli reali
 WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (5,9,1,4,'Rossa',2,6,'2021-01-01') RETURNING id_vehicle)
-INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'DD000DD',900 FROM v;
+  VALUES (5,36,1,21,'Rossa',2,6,'2022-01-01') RETURNING id_vehicle)
+INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'DD000DD',1103 FROM v;
 
 WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (5,10,1,5,'Arancione',2,6,'2022-01-01') RETURNING id_vehicle)
-INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'EE000EE',1200 FROM v;
+  VALUES (5,38,1,23,'Blu',2,6,'2021-01-01') RETURNING id_vehicle)
+INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'EE000EE',998 FROM v;
 
--- Bici permanenti (2)
+-- Bici permanenti (2) — brand e modelli reali
 WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (6,11,5,7,'Verde',2,0,'2023-01-01') RETURNING id_vehicle)
+  VALUES (11,47,7,28,'Nero',2,11,'2023-01-01') RETURNING id_vehicle)
+INSERT INTO bikes (id_vehicle,brake_type,suspension_type,foldable) SELECT id_vehicle,'Disco','Rigida',false FROM v;
+
+WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
+  VALUES (12,49,7,29,'Verde',2,12,'2022-01-01') RETURNING id_vehicle)
 INSERT INTO bikes (id_vehicle,brake_type,suspension_type,foldable) SELECT id_vehicle,'Disco','Full',false FROM v;
-
-WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (6,12,5,12,'Bianco',2,0,'2022-01-01') RETURNING id_vehicle)
-INSERT INTO bikes (id_vehicle,brake_type,suspension_type,foldable) SELECT id_vehicle,'V-Brake','Anteriore',true FROM v;
