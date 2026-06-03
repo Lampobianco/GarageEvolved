@@ -461,4 +461,48 @@ Abbiamo 8 tabelle:
        Printer.printAlimentations(lista)
        Printer.section("TITOLO")  → separatore visivo
 
+  Come funzionano i metodi statici del Printer:
+
+    Due stili di chiamata — stessa cosa, momento diverso:
+
+    STILE 1 — esegui subito su un oggetto già pronto:
+      Printer.printCar(service.findCarById(id));
+      → hai la Car, la passi tu direttamente al metodo
+
+    STILE 2 — method reference, passi la funzione a forEach:
+      service.findAllCars().forEach(Printer::printCar);
+      → equivale a: .forEach(car -> Printer.printCar(car))
+      → forEach chiamerà printCar per ogni elemento della lista
+
+    Printer::printCar (con ::) non ESEGUE il metodo —
+    lo DESCRIVE. forEach lo eseguirà per te su ogni elemento.
+
+  Perché metodi statici?
+    Printer non ha stato interno (nessun campo).
+    È solo una collezione di funzioni di formattazione.
+    I metodi statici sono perfetti per questo: non serve
+    creare un oggetto Printer, si chiama direttamente
+    sulla classe.
+
+
+----------------------------------------------------------------
+  DB — SETUP DA CASA
+----------------------------------------------------------------
+
+  Il file db/vehicles_db_setup.sql (nella root del progetto)
+  contiene tutto lo script per ricreare il DB da zero:
+    - Creazione delle 8 tabelle
+    - Tutti i vincoli FK
+    - INSERT dei dati di lookup (tipi, brand, modelli, alimentazioni)
+
+  Da casa, dopo git pull, basta dire a Claude:
+    "Esegui db/vehicles_db_setup.sql su PostgreSQL"
+  e il DB sarà identico a quello aziendale in pochi secondi.
+
+  Credenziali da configurare in src/sql.properties:
+    url=jdbc:postgresql://localhost:5432/vehicles_db
+    user=postgres
+    pwd=LA_TUA_PASSWORD
+    driver=org.postgresql.Driver
+
 ================================================================
