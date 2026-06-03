@@ -37,9 +37,10 @@ public class CarDao extends VehicleDao {
 	// Costruisce un Car completo: prima i campi Vehicle (JOIN), poi quelli specifici
 	protected Car build(Map<String, Object> row) {
 		Car car = new Car();
-		fillVehicleFields(car, row); // metodo ereditato da VehicleDao
-		car.setLicensePlate((String)  row.get("licence_plate"));
-		car.setCc((Integer)           row.get("cc"));
+		fillVehicleFields(car, row);
+		car.setIdCar((Integer)         row.get("id_car"));
+		car.setLicensePlate((String)   row.get("licence_plate"));
+		car.setCc((Integer)            row.get("cc"));
 		car.setNumberOfDoors((Integer) row.get("number_of_doors"));
 		return car;
 	}

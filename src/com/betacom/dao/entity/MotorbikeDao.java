@@ -36,8 +36,9 @@ public class MotorbikeDao extends VehicleDao {
 	protected Motorbike build(Map<String, Object> row) {
 		Motorbike m = new Motorbike();
 		fillVehicleFields(m, row);
-		m.setLicensePlate((String)  row.get("licence_plate"));
-		m.setCc((Integer)           row.get("cc"));
+		m.setIdMotorbike((Integer) row.get("id_motorbike"));
+		m.setLicensePlate((String) row.get("licence_plate"));
+		m.setCc((Integer)          row.get("cc"));
 		return m;
 	}
 }

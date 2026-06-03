@@ -102,3 +102,40 @@ INSERT INTO vehicle_models (vehicle_model_name, id_vehicle_brand) VALUES
   ('Clio', 18),
   ('Tucson', 19),
   ('Sportage', 20);
+
+-- =============================================
+-- Dati permanenti di esempio
+-- Questi record sono sempre presenti nel DB
+-- Le targhe TMP*** sono riservate ai test runtime
+-- =============================================
+
+-- Auto permanenti (3)
+WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
+  VALUES (1,1,1,1,'Rosso',4,5,'2020-01-01') RETURNING id_vehicle)
+INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle,'AA000AA',1100,5 FROM v;
+
+WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
+  VALUES (3,17,2,8,'Nero',4,8,'2022-01-01') RETURNING id_vehicle)
+INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle,'BB000BB',2000,4 FROM v;
+
+WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
+  VALUES (3,30,5,16,'Bianco',4,1,'2023-01-01') RETURNING id_vehicle)
+INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle,'CC000CC',0,4 FROM v;
+
+-- Moto permanenti (2)
+WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
+  VALUES (5,9,1,4,'Rossa',2,6,'2021-01-01') RETURNING id_vehicle)
+INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'DD000DD',900 FROM v;
+
+WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
+  VALUES (5,10,1,5,'Arancione',2,6,'2022-01-01') RETURNING id_vehicle)
+INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'EE000EE',1200 FROM v;
+
+-- Bici permanenti (2)
+WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
+  VALUES (6,11,5,7,'Verde',2,0,'2023-01-01') RETURNING id_vehicle)
+INSERT INTO bikes (id_vehicle,brake_type,suspension_type,foldable) SELECT id_vehicle,'Disco','Full',false FROM v;
+
+WITH v AS (INSERT INTO vehicle (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,color,number_of_wheels,numbers_of_gears,production_year)
+  VALUES (6,12,5,12,'Bianco',2,0,'2022-01-01') RETURNING id_vehicle)
+INSERT INTO bikes (id_vehicle,brake_type,suspension_type,foldable) SELECT id_vehicle,'V-Brake','Anteriore',true FROM v;

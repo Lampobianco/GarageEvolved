@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class Motorbike extends Vehicle {
 
+	private Integer idMotorbike;  // PK della tabella motorbikes
 	private String  licensePlate; // targa  →  es. "AB123CD", "EF456GH"
 	private Integer cc;           // cilindrata in cc  →  es. 500, 900, 1200
 

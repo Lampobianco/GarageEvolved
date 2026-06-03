@@ -14,6 +14,7 @@ import com.betacom.dao.lookup.VehicleTypeDao;
 import com.betacom.objects.Bike;
 import com.betacom.objects.Car;
 import com.betacom.objects.Motorbike;
+import com.betacom.objects.Vehicle;
 import com.betacom.objects.VehicleAlimentationType;
 import com.betacom.objects.VehicleBrand;
 import com.betacom.objects.VehicleModel;
@@ -124,39 +125,40 @@ public class VehicleService {
 	// L'ordine è obbligatorio: prima il record specifico (cars/motorbikes/bikes),
 	// poi quello padre (vehicle) — altrimenti la FK blocca la cancellazione
 
-	public void deleteCar(Integer idCar, Integer idVehicle) {
+	// Accetta direttamente l'oggetto — gli ID li legge da lui
+	public void deleteCar(Car car) {
 		try {
 			config.setTransaction();
-			carDao.delete(idCar);
-			vehicleDao.delete(idVehicle);
+			carDao.delete(car.getIdCar());
+			vehicleDao.delete(car.getId());
 			config.commit();
-			log.info("Auto eliminata — id_car: {}, id_vehicle: {}", idCar, idVehicle);
+			log.info("Auto eliminata — {} {}", car.getBrand(), car.getModel());
 		} catch (Exception e) {
 			config.rollback();
 			log.error("Errore eliminazione auto: {}", e.getMessage());
 		}
 	}
 
-	public void deleteMotorbike(Integer idMotorbike, Integer idVehicle) {
+	public void deleteMotorbike(Motorbike m) {
 		try {
 			config.setTransaction();
-			motoDao.delete(idMotorbike);
-			vehicleDao.delete(idVehicle);
+			motoDao.delete(m.getIdMotorbike());
+			vehicleDao.delete(m.getId());
 			config.commit();
-			log.info("Moto eliminata — id_motorbike: {}, id_vehicle: {}", idMotorbike, idVehicle);
+			log.info("Moto eliminata — {} {}", m.getBrand(), m.getModel());
 		} catch (Exception e) {
 			config.rollback();
 			log.error("Errore eliminazione moto: {}", e.getMessage());
 		}
 	}
 
-	public void deleteBike(Integer idBike, Integer idVehicle) {
+	public void deleteBike(Bike b) {
 		try {
 			config.setTransaction();
-			bikeDao.delete(idBike);
-			vehicleDao.delete(idVehicle);
+			bikeDao.delete(b.getIdBike());
+			vehicleDao.delete(b.getId());
 			config.commit();
-			log.info("Bici eliminata — id_bike: {}, id_vehicle: {}", idBike, idVehicle);
+			log.info("Bici eliminata — {} {}", b.getBrand(), b.getModel());
 		} catch (Exception e) {
 			config.rollback();
 			log.error("Errore eliminazione bici: {}", e.getMessage());

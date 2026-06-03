@@ -36,6 +36,7 @@ public class BikeDao extends VehicleDao {
 	protected Bike build(Map<String, Object> row) {
 		Bike b = new Bike();
 		fillVehicleFields(b, row);
+		b.setIdBike((Integer)        row.get("id_bike"));
 		b.setBrakeType((String)      row.get("brake_type"));
 		b.setSuspensionType((String) row.get("suspension_type"));
 		b.setFoldable((Boolean)      row.get("foldable"));

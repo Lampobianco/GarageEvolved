@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class Bike extends Vehicle {
 
+	private Integer idBike;         // PK della tabella bikes
 	private Integer numberOfGears;  // numero di marce  →  es. 3, 6, 21
 	private String  brakeType;      // tipo di freno  →  es. "Disco", "V-Brake", "Idraulico"
 	private String  suspensionType; // tipo di sospensione  →  es. "Rigida", "Anteriore", "Full"
