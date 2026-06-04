@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.betacom.config.DBManager;
 import com.betacom.config.SQLConfiguration;
 import com.betacom.objects.Motorbike;
@@ -41,6 +44,21 @@ public class MotorbikeDao extends VehicleDao {
 	public List<Motorbike> findByBrand(Integer idBrand) {
 		return db.query(config.getQuery("query.motorbike.findByBrand"), idBrand)
 				.stream().map(this::build).collect(Collectors.toList());
+	}
+
+	// UPDATE DINAMICO — aggiorna solo i campi di motorbikes non-null
+	public int update(Integer vehicleId, Motorbike m) {
+		List<Object> params = new ArrayList<>();
+		List<String> fields = new ArrayList<>();
+
+		if (m.getLicensePlate() != null) { fields.add("licence_plate = ?"); params.add(m.getLicensePlate()); }
+		if (m.getCc()           != null) { fields.add("cc = ?");            params.add(m.getCc()); }
+
+		if (fields.isEmpty()) return 0;
+
+		String query = "UPDATE motorbikes SET " + String.join(", ", fields) + " WHERE id_vehicle = ?";
+		params.add(vehicleId);
+		return db.save(query, false, params.toArray());
 	}
 
 	public int insert(Integer idVehicle, String plate, Integer cc) {

@@ -20,6 +20,9 @@ public abstract class Vehicle {
     private String  brand;            // es. "Ferrari", "Fiat", "Tesla"
     private String  colorName;        // es. "Rosso", "Nero" — dalla tabella colors via JOIN
     private Integer numberOfWheels;   // es. 4, 2
-    private int     gears;            // es. 6, 8, 0 (elettrico/bici)
+    private Integer gears;            // es. 6, 8, 0 — Integer per supportare il dynamic update (null = non modificare)
     private Integer productionYear;   // es. 2022, 2019
+
+    // Usato solo negli UPDATE — non popolato nelle SELECT (per evitare duplicati con colorName)
+    private Integer idColor;
 }

@@ -93,17 +93,22 @@ public class Menu {
         System.out.println("   0  →  Annulla");
         System.out.println(LINE);
         int campo = ask("Campo da modificare");
+        if (campo == 0) return;
         System.out.print(SPACE);
+
+        // Crea un oggetto vuoto — imposta solo il campo scelto
+        // Il dynamic update aggiorna solo i campi non-null
+        Car upd = new Car();
         switch (campo) {
-            case 1 -> { printColors(); int col = ask("Nuovo colore (numero)"); service.updateVehicleColor(c.getId(), col); }
-            case 2 -> { int y = ask("Nuovo anno");           service.updateVehicleYear(c.getId(), y);   }
-            case 3 -> { String p = askString("Nuova targa"); service.updateCarPlate(c.getId(), p);      }
-            case 4 -> { int cc = ask("Nuova cilindrata");    service.updateCarCc(c.getId(), cc);         }
-            case 5 -> { int d = ask("N. porte");             service.updateCarDoors(c.getId(), d);       }
-            case 6 -> { int g = ask("N. marce");             service.updateVehicleGears(c.getId(), g);  }
-            case 0 -> { return; }
+            case 1 -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); }
+            case 2 -> upd.setProductionYear(ask("Nuovo anno"));
+            case 3 -> upd.setLicensePlate(askString("Nuova targa"));
+            case 4 -> upd.setCc(ask("Nuova cilindrata"));
+            case 5 -> upd.setNumberOfDoors(ask("N. porte"));
+            case 6 -> upd.setGears(ask("N. marce"));
             default -> { System.out.println("   Campo non valido."); return; }
         }
+        service.updateCar(c.getId(), upd);
         System.out.println("\n   Aggiornamento eseguito.");
     }
 
@@ -119,16 +124,19 @@ public class Menu {
         System.out.println("   0  →  Annulla");
         System.out.println(LINE);
         int campo = ask("Campo da modificare");
+        if (campo == 0) return;
         System.out.print(SPACE);
+
+        Motorbike upd = new Motorbike();
         switch (campo) {
-            case 1 -> { printColors(); int col = ask("Nuovo colore (numero)"); service.updateVehicleColor(m.getId(), col); }
-            case 2 -> { int y = ask("Nuovo anno");           service.updateVehicleYear(m.getId(), y);  }
-            case 3 -> { String p = askString("Nuova targa"); service.updateMotoPlate(m.getId(), p);    }
-            case 4 -> { int cc = ask("Nuova cilindrata");    service.updateMotoCc(m.getId(), cc);       }
-            case 5 -> { int g = ask("N. marce");             service.updateVehicleGears(m.getId(), g); }
-            case 0 -> { return; }
+            case 1 -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); }
+            case 2 -> upd.setProductionYear(ask("Nuovo anno"));
+            case 3 -> upd.setLicensePlate(askString("Nuova targa"));
+            case 4 -> upd.setCc(ask("Nuova cilindrata"));
+            case 5 -> upd.setGears(ask("N. marce"));
             default -> { System.out.println("   Campo non valido."); return; }
         }
+        service.updateMotorbike(m.getId(), upd);
         System.out.println("\n   Aggiornamento eseguito.");
     }
 
@@ -145,17 +153,20 @@ public class Menu {
         System.out.println("   0  →  Annulla");
         System.out.println(LINE);
         int campo = ask("Campo da modificare");
+        if (campo == 0) return;
         System.out.print(SPACE);
+
+        Bike upd = new Bike();
         switch (campo) {
-            case 1 -> { printColors(); int col = ask("Nuovo colore (numero)"); service.updateVehicleColor(b.getId(), col); }
-            case 2 -> { int y = ask("Nuovo anno");   service.updateVehicleYear(b.getId(), y);      }
-            case 3 -> { printBrakeTypes(); int bt = ask("Tipo freno (numero)"); service.updateBikeBrakeType(b.getId(), bt); }
-            case 4 -> { printSuspensions(); int st = ask("Sospensione (numero)"); service.updateBikeSuspension(b.getId(), st); }
-            case 5 -> { String f = askString("Pieghevole? (s/n)"); service.updateBikeFoldable(b.getId(), f.equalsIgnoreCase("s")); }
-            case 6 -> { int g = ask("N. marce"); service.updateVehicleGears(b.getId(), g); }
-            case 0 -> { return; }
+            case 1 -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); }
+            case 2 -> upd.setProductionYear(ask("Nuovo anno"));
+            case 3 -> { printBrakeTypes(); upd.setIdBrakeType(ask("Tipo freno (numero)")); }
+            case 4 -> { printSuspensions(); upd.setIdSuspensionType(ask("Sospensione (numero)")); }
+            case 5 -> upd.setFoldable(askString("Pieghevole? (s/n)").equalsIgnoreCase("s"));
+            case 6 -> upd.setGears(ask("N. marce"));
             default -> { System.out.println("   Campo non valido."); return; }
         }
+        service.updateBike(b.getId(), upd);
         System.out.println("\n   Aggiornamento eseguito.");
     }
 

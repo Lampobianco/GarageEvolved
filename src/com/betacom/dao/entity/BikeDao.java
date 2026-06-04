@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.betacom.config.DBManager;
 import com.betacom.config.SQLConfiguration;
 import com.betacom.objects.Bike;
@@ -39,6 +42,22 @@ public class BikeDao extends VehicleDao {
 	}
 
 	// idBrakeType e idSuspensionType sono FK verso le rispettive tabelle lookup
+	// UPDATE DINAMICO — aggiorna solo i campi di bikes non-null
+	public int update(Integer vehicleId, Bike b) {
+		List<Object> params = new ArrayList<>();
+		List<String> fields = new ArrayList<>();
+
+		if (b.getIdBrakeType()      != null) { fields.add("id_brake_type = ?");      params.add(b.getIdBrakeType()); }
+		if (b.getIdSuspensionType() != null) { fields.add("id_suspension_type = ?"); params.add(b.getIdSuspensionType()); }
+		if (b.getFoldable()         != null) { fields.add("foldable = ?");            params.add(b.getFoldable()); }
+
+		if (fields.isEmpty()) return 0;
+
+		String query = "UPDATE bikes SET " + String.join(", ", fields) + " WHERE id_vehicle = ?";
+		params.add(vehicleId);
+		return db.save(query, false, params.toArray());
+	}
+
 	public int insert(Integer idVehicle, Integer idBrakeType, Integer idSuspensionType, Boolean foldable) {
 		return db.save(config.getQuery("update.bike.insert"), true,
 				idVehicle, idBrakeType, idSuspensionType, foldable);

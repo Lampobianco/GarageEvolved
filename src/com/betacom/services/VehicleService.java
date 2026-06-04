@@ -114,62 +114,65 @@ public class VehicleService {
 	public Car      findCarByPlate(String plate)    { return carDao.findByPlate(plate);   }
 	public Motorbike findMotoByPlate(String plate)  { return motoDao.findByPlate(plate);  }
 
-	// -------------------------
-	// UPDATE campo per campo (tutti usano id_vehicle come chiave)
-	// -------------------------
+	// ─── UPDATE DINAMICO — stile prof ────────────────────────────────────────────
+	// Aggiorna solo i campi non-null dell'oggetto passato.
+	// Per modificare UN campo: crea un oggetto nuovo, imposta solo quel campo,
+	// chiama il metodo — gli altri restano invariati nel DB.
 
-	public void updateVehicleColor(Integer vehicleId, Integer colorId) {
-		db.save(config.getQuery("update.vehicle.updateColor"), false, colorId, vehicleId);
-	}
-	public void updateVehicleYear(Integer vehicleId, Integer year) {
-		db.save(config.getQuery("update.vehicle.updateYear"), false,
-				java.sql.Date.valueOf(year + "-01-01"), vehicleId);
-	}
-	public void updateVehicleGears(Integer vehicleId, Integer gears) {
-		db.save(config.getQuery("update.vehicle.updateGears"), false, gears, vehicleId);
-	}
-	public void updateCarPlate(Integer vehicleId, String plate) {
-		db.save(config.getQuery("update.car.updatePlate"), false, plate, vehicleId);
-	}
-	public void updateCarCc(Integer vehicleId, Integer cc) {
-		db.save(config.getQuery("update.car.updateCc"), false, cc, vehicleId);
-	}
-	public void updateCarDoors(Integer vehicleId, Integer doors) {
-		db.save(config.getQuery("update.car.updateDoors"), false, doors, vehicleId);
-	}
-	public void updateMotoPlate(Integer vehicleId, String plate) {
-		db.save(config.getQuery("update.motorbike.updatePlate"), false, plate, vehicleId);
-	}
-	public void updateMotoCc(Integer vehicleId, Integer cc) {
-		db.save(config.getQuery("update.motorbike.updateCc"), false, cc, vehicleId);
-	}
-	public void updateBikeBrakeType(Integer vehicleId, Integer brakeTypeId) {
-		db.save(config.getQuery("update.bike.updateBrakeType"), false, brakeTypeId, vehicleId);
-	}
-	public void updateBikeSuspension(Integer vehicleId, Integer suspTypeId) {
-		db.save(config.getQuery("update.bike.updateSuspension"), false, suspTypeId, vehicleId);
-	}
-	public void updateBikeFoldable(Integer vehicleId, Boolean foldable) {
-		db.save(config.getQuery("update.bike.updateFoldable"), false, foldable, vehicleId);
+	public void updateCar(Integer vehicleId, Car car) {
+		try {
+			config.setTransaction();
+			carDao.updateVehicleFields(vehicleId, car); // campi comuni in vehicles
+			carDao.update(vehicleId, car);               // campi specifici in cars
+			config.commit();
+			log.info("Auto aggiornata — id: {}", vehicleId);
+		} catch (Exception e) {
+			config.rollback();
+			log.error("Errore update auto: {}", e.getMessage());
+		}
 	}
 
-	// -------------------------
-	// UPDATE (vecchi metodi da file — aggiornamento colore per targa)
-	// -------------------------
+	public void updateMotorbike(Integer vehicleId, Motorbike m) {
+		try {
+			config.setTransaction();
+			motoDao.updateVehicleFields(vehicleId, m);
+			motoDao.update(vehicleId, m);
+			config.commit();
+			log.info("Moto aggiornata — id: {}", vehicleId);
+		} catch (Exception e) {
+			config.rollback();
+			log.error("Errore update moto: {}", e.getMessage());
+		}
+	}
 
-	// Aggiorna il colore di un veicolo tramite targa
+	public void updateBike(Integer vehicleId, Bike b) {
+		try {
+			config.setTransaction();
+			bikeDao.updateVehicleFields(vehicleId, b);
+			bikeDao.update(vehicleId, b);
+			config.commit();
+			log.info("Bici aggiornata — id: {}", vehicleId);
+		} catch (Exception e) {
+			config.rollback();
+			log.error("Errore update bici: {}", e.getMessage());
+		}
+	}
+
+	// Usato dal FileLoader per UPD|CAR e UPD|MOTO (aggiornamento colore per targa)
 	public void updateCarColor(String plate, Integer newColorId) {
 		Car car = carDao.findByPlate(plate);
 		if (car == null) { log.error("Auto non trovata per targa: {}", plate); return; }
-		db.save(config.getQuery("update.vehicle.updateColor"), false, newColorId, car.getId());
-		log.info("Colore aggiornato — {} (color id: {})", plate, newColorId);
+		Car update = new Car();
+		update.setIdColor(newColorId);
+		updateCar(car.getId(), update);
 	}
 
 	public void updateMotoColor(String plate, Integer newColorId) {
 		Motorbike m = motoDao.findByPlate(plate);
 		if (m == null) { log.error("Moto non trovata per targa: {}", plate); return; }
-		db.save(config.getQuery("update.vehicle.updateColor"), false, newColorId, m.getId());
-		log.info("Colore aggiornato — {} (color id: {})", plate, newColorId);
+		Motorbike update = new Motorbike();
+		update.setIdColor(newColorId);
+		updateMotorbike(m.getId(), update);
 	}
 
 	// -------------------------

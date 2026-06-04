@@ -12,9 +12,13 @@ import lombok.experimental.SuperBuilder;
 public class Bike extends Vehicle {
 
 	private Integer idBike;
-	private String  brakeTypeName;      // es. "Disco Idraulico", "V-Brake" — dalla tabella brake_types
-	private String  suspensionTypeName; // es. "Full", "Rigida" — dalla tabella suspension_types
-	private Boolean foldable;           // true = pieghevole
+	private String  brakeTypeName;      // display — dalla tabella brake_types via JOIN
+	private String  suspensionTypeName; // display — dalla tabella suspension_types via JOIN
+	private Boolean foldable;
+
+	// Usati solo negli UPDATE dinamici — non popolati nelle SELECT
+	private Integer idBrakeType;
+	private Integer idSuspensionType;
 
 	@Override
 	public String toString() {
