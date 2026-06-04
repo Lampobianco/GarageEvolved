@@ -25,16 +25,16 @@ public class Menu {
         clear();
         while (true) {
             showMain();
-            switch (readInt()) {
-                case 1 -> addVehicles();
-                case 2 -> updateVehicle();
-                case 3 -> searchVehicle();
-                case 4 -> deleteVehicle();
-                case 5 -> printVehicles();
+            int scelta = readInt();
+            switch (scelta) {
+                case 1 -> { addVehicles();   pause(); }
+                case 2 -> { updateVehicle(); pause(); }
+                case 3 -> { searchVehicle(); pause(); }
+                case 4 -> { deleteVehicle(); pause(); }
+                case 5 -> { printVehicles(); pause(); }
                 case 6 -> exit();
-                default -> msg("Scelta non valida.");
+                default -> { msg("   Scelta non valida — scegli un numero tra 1 e 6."); pause(); }
             }
-            pause();
         }
     }
 
@@ -187,21 +187,27 @@ public class Menu {
         }
     }
 
-    // ─── 4 · Elimina ──────────────────────────────────────────────────────────
+    // ─── 4 · Elimina per ID ───────────────────────────────────────────────────
 
     private void deleteVehicle() {
         clear();
-        List<Object> list = showVehicleList("ELIMINA VEICOLO");
-        if (list.isEmpty()) return;
-        System.out.print("\n   Numero veicolo da eliminare (0 annulla): ");
-        int idx = readInt() - 1;
-        if (idx < 0 || idx >= list.size()) return;
+        System.out.println(LINE);
+        System.out.println("   ELIMINA VEICOLO");
+        System.out.println(LINE);
+        System.out.print("   ID veicolo da eliminare (0 annulla): ");
+        int vehicleId = readInt();
+        if (vehicleId <= 0) return;
 
-        Object v = list.get(idx);
-        if      (v instanceof Car c)       service.deleteCar(c);
-        else if (v instanceof Motorbike m) service.deleteMotorbike(m);
-        else if (v instanceof Bike b)      service.deleteBike(b);
-        msg("Veicolo eliminato.");
+        Car car = service.findCarByVehicleId(vehicleId);
+        if (car != null) { service.deleteCar(car); msg("Auto eliminata."); return; }
+
+        Motorbike m = service.findMotoByVehicleId(vehicleId);
+        if (m != null) { service.deleteMotorbike(m); msg("Moto eliminata."); return; }
+
+        Bike b = service.findBikeByVehicleId(vehicleId);
+        if (b != null) { service.deleteBike(b); msg("Bici eliminata."); return; }
+
+        msg("Nessun veicolo trovato con ID: " + vehicleId);
     }
 
     // ─── 5 · Stampa veicoli ───────────────────────────────────────────────────

@@ -52,11 +52,17 @@ public class VehicleService {
 	// Svuota tutti i veicoli dal DB (rispetta l'ordine FK)
 	// Usato all'avvio per ricaricare i dati freschi dai file
 	public void clearAllVehicles() {
-		db.save("DELETE FROM cars",       false);
-		db.save("DELETE FROM motorbikes", false);
-		db.save("DELETE FROM bikes",      false);
-		db.save("DELETE FROM vehicles",   false);
-		log.info("DB veicoli svuotato");
+		try {
+			config.setTransaction();
+			db.save("DELETE FROM cars",       false);
+			db.save("DELETE FROM motorbikes", false);
+			db.save("DELETE FROM bikes",      false);
+			db.save("DELETE FROM vehicles",   false);
+			config.commit();
+		} catch (Exception e) {
+			config.rollback();
+			log.error("Errore svuotamento DB: {}", e.getMessage());
+		}
 	}
 
 	// -------------------------
