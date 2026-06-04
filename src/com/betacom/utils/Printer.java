@@ -73,6 +73,7 @@ public class Printer {
 
 	public static void printCar(Car c) {
 		log.info("\n{}\n  AUTO  —  {} {}\n{}\n"  +
+				 "  ID          : {}\n"           +
 				 "  Colore      : {}\n"           +
 				 "  Targa       : {}\n"           +
 				 "  Cilindrata  : {} cc\n"        +
@@ -82,13 +83,14 @@ public class Printer {
 				 "  Alimentaz.  : {}\n"           +
 				 "{}",
 			LINE, c.getBrand(), c.getModel(), LINE,
-			c.getColorName(), c.getLicensePlate(), c.getCc(),
+			c.getId(), c.getColorName(), c.getLicensePlate(), c.getCc(),
 			c.getNumberOfDoors(), c.getProductionYear(),
 			c.getVehicleType(), c.getAlimentationType(), LINE);
 	}
 
 	public static void printMotorbike(Motorbike m) {
 		log.info("\n{}\n  MOTO  —  {} {}\n{}\n" +
+				 "  ID          : {}\n"          +
 				 "  Colore      : {}\n"          +
 				 "  Targa       : {}\n"          +
 				 "  Cilindrata  : {} cc\n"       +
@@ -97,13 +99,14 @@ public class Printer {
 				 "  Alimentaz.  : {}\n"          +
 				 "{}",
 			LINE, m.getBrand(), m.getModel(), LINE,
-			m.getColorName(), m.getLicensePlate(), m.getCc(),
+			m.getId(), m.getColorName(), m.getLicensePlate(), m.getCc(),
 			m.getProductionYear(), m.getVehicleType(),
 			m.getAlimentationType(), LINE);
 	}
 
 	public static void printBike(Bike b) {
 		log.info("\n{}\n  BICI  —  {} {}\n{}\n" +
+				 "  ID          : {}\n"          +
 				 "  Colore      : {}\n"          +
 				 "  Tipo        : {}\n"          +
 				 "  Freni       : {}\n"          +
@@ -113,7 +116,7 @@ public class Printer {
 				 "  Anno        : {}\n"          +
 				 "{}",
 			LINE, b.getBrand(), b.getModel(), LINE,
-			b.getColorName(), b.getVehicleType(),
+			b.getId(), b.getColorName(), b.getVehicleType(),
 			b.getBrakeTypeName(), b.getSuspensionTypeName(),
 			b.getGears(),
 			Boolean.TRUE.equals(b.getFoldable()) ? "Si" : "No",
