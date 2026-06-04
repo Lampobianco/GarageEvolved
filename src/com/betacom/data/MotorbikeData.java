@@ -14,8 +14,9 @@ public class MotorbikeData {
 
 		// Kawasaki Ninja ZX-10R Verde / Triumph Speed Triple Nero
 		// (typeId, modelId, alimentId, brandId, colorId, ruote, marce, anno, targa, cc)
-		int id1 = service.insertMotorbike(5, 37, 1, 22, 6, 2, 6, 2022, "TMP003CC", 998);
-		int id2 = service.insertMotorbike(5, 40, 1, 24, 2, 2, 6, 2021, "TMP004DD", 1160);
+		// formato targa moto italiana: 2 lettere + 5 numeri  es. KA09981
+		int id1 = service.insertMotorbike(5, 37, 1, 22, 6, 2, 6, 2022, "KA09981", 998);
+		int id2 = service.insertMotorbike(5, 40, 1, 24, 2, 2, 6, 2021, "TR11601", 1160);
 
 		Motorbike m1 = service.findMotorbikeById(id1);
 		Motorbike m2 = service.findMotorbikeById(id2);

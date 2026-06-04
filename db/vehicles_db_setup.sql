@@ -168,11 +168,11 @@ INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle
 -- Moto permanenti
 WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
   VALUES (5,36,1,21,1,2,6,'2022-01-01') RETURNING id_vehicle)
-INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'DD000DD',1103 FROM v;
+INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'DU11031',1103 FROM v;
 
 WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
   VALUES (5,38,1,23,5,2,6,'2021-01-01') RETURNING id_vehicle)
-INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'EE000EE',998 FROM v;
+INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'YA09981',998 FROM v;
 
 -- Bici permanenti
 WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)

@@ -41,10 +41,10 @@ public class SearchDemo {
 			"brand = Ducati"
 		);
 
-		// 6. Ricerca targa moto parziale — cerca "EE"
+		// 6. Ricerca targa moto parziale — cerca "YA" (trova YA09981 Yamaha)
 		Printer.printSearchMotorbikes(
-			service.searchMotoByPlate("EE"),
-			"targa contiene 'EE'"
+			service.searchMotoByPlate("YA"),
+			"targa contiene 'YA'"
 		);
 
 		// 7. Ricerca bici per tipo — Bici da Corsa (id=11)
