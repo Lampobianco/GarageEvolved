@@ -18,13 +18,14 @@ public class DBManager {
 
     private final SQLConfiguration config = SQLConfiguration.getInstance();
 
-    // SELECT — restituisce ogni riga come Map<nomeColonna, valore>
+    // SELECT — chiude sempre stmt e rs con try-with-resources
     public List<Map<String, Object>> query(String sql, Object... params) {
-        try {
-            PreparedStatement stmt = config.getConnection().prepareStatement(sql);
+        try (PreparedStatement stmt = config.getConnection().prepareStatement(sql)) {
             setParams(stmt, params);
-            log.debug("Executing query: {}", sql);
-            return toList(stmt.executeQuery());
+            log.debug("Query: {}", sql);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return toList(rs);
+            }
         } catch (Exception e) {
             throw new AppException("Query error: " + e.getMessage());
         }
@@ -40,15 +41,14 @@ public class DBManager {
     // returnKey = true  → ritorna la primary key generata
     // returnKey = false → ritorna il numero di righe modificate
     public int save(String sql, boolean returnKey, Object... params) {
-        try {
-            PreparedStatement stmt = returnKey
-                ? config.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-                : config.getConnection().prepareStatement(sql);
+        int flag = returnKey ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS;
+        try (PreparedStatement stmt = config.getConnection().prepareStatement(sql, flag)) {
             setParams(stmt, params);
             stmt.executeUpdate();
             if (returnKey) {
-                ResultSet keys = stmt.getGeneratedKeys();
-                if (keys.next()) return keys.getInt(1);
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) return keys.getInt(1);
+                }
             }
             return stmt.getUpdateCount();
         } catch (Exception e) {
@@ -62,7 +62,6 @@ public class DBManager {
         List<Map<String, Object>> rows = new ArrayList<>();
         while (rs.next()) {
             Map<String, Object> row = new HashMap<>();
-            // scorre gli indici delle colonne e riempie la mappa
             for (int i = 1; i <= meta.getColumnCount(); i++)
                 row.put(meta.getColumnLabel(i), rs.getObject(i));
             rows.add(row);

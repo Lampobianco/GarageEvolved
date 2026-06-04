@@ -12,12 +12,12 @@ public abstract class VehicleDao {
 	private final DBManager        db     = new DBManager();
 	private final SQLConfiguration config = SQLConfiguration.getInstance();
 
-	// Insert — riceve gli ID delle tabelle lookup e i valori del veicolo
-	// Ritorna la PK generata dal DB, che serve al DAO specifico (CarDao ecc.)
-	public int insert(Integer typeId, Integer modelId, Integer alimentId, Integer brandId,
-					  String color, Integer wheels, Integer gears, Integer year) {
+	// Inserisce nella tabella vehicles — ritorna la PK generata
+	// idColor è ora obbligatorio (FK verso colors)
+	public int insert(Integer typeId, Integer modelId, Integer alimentId,
+					  Integer brandId, Integer colorId, Integer wheels, Integer gears, Integer year) {
 		return db.save(config.getQuery("update.vehicle.insert"), true,
-				typeId, modelId, alimentId, brandId, color, wheels, gears,
+				typeId, modelId, alimentId, brandId, colorId, wheels, gears,
 				Date.valueOf(year + "-01-01"));
 	}
 
@@ -25,17 +25,16 @@ public abstract class VehicleDao {
 		return db.save(config.getQuery("update.vehicle.delete"), false, id);
 	}
 
-	// Metodo condiviso che popola i campi comuni di Vehicle
-	// Usato da CarDao, MotorbikeDao, BikeDao per non riscrivere lo stesso codice
+	// Popola i campi comuni di Vehicle leggendo la riga del JOIN
 	protected void fillVehicleFields(Vehicle v, Map<String, Object> row) {
-		v.setId((Integer) row.get("id_vehicle"));
-		v.setVehicleType((String) row.get("vehicle_type_name"));
-		v.setModel((String) row.get("vehicle_model_name"));
+		v.setId((Integer)           row.get("id_vehicle"));
+		v.setVehicleType((String)   row.get("vehicle_type_name"));
+		v.setModel((String)         row.get("vehicle_model_name"));
 		v.setAlimentationType((String) row.get("vehicle_alimentation_type_name"));
-		v.setBrand((String) row.get("vehicle_brand_name"));
-		v.setColor((String) row.get("color"));
+		v.setBrand((String)         row.get("vehicle_brand_name"));
+		v.setColorName((String)     row.get("color_name"));
 		v.setNumberOfWheels((Integer) row.get("number_of_wheels"));
-		v.setGears((int) row.get("numbers_of_gears"));
+		v.setGears((int)            row.get("numbers_of_gears"));
 		if (row.get("production_year") != null)
 			v.setProductionYear(((Date) row.get("production_year")).toLocalDate().getYear());
 	}

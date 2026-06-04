@@ -15,14 +15,22 @@ public class MotorbikeDao extends VehicleDao {
 
 	public List<Motorbike> findAll() {
 		return db.query(config.getQuery("query.motorbike.findAll"))
-				.stream()
-				.map(this::build)
-				.collect(Collectors.toList());
+				.stream().map(this::build).collect(Collectors.toList());
 	}
 
 	public Motorbike findById(Integer id) {
 		Map<String, Object> row = db.get(config.getQuery("query.motorbike.findById"), id);
 		return row == null ? null : build(row);
+	}
+
+	public List<Motorbike> searchByPlate(String pattern) {
+		return db.query(config.getQuery("query.motorbike.searchByPlate"), pattern)
+				.stream().map(this::build).collect(Collectors.toList());
+	}
+
+	public List<Motorbike> findByBrand(Integer idBrand) {
+		return db.query(config.getQuery("query.motorbike.findByBrand"), idBrand)
+				.stream().map(this::build).collect(Collectors.toList());
 	}
 
 	public int insert(Integer idVehicle, String plate, Integer cc) {

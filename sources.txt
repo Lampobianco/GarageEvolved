@@ -5,6 +5,9 @@ C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\entity\CarDao.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\entity\MotorbikeDao.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\entity\VehicleDao.java
+C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\lookup\BrakeTypeDao.java
+C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\lookup\ColorDao.java
+C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\lookup\SuspensionTypeDao.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\lookup\VehicleAlimentationTypeDao.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\lookup\VehicleBrandDao.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\dao\lookup\VehicleModelDao.java
@@ -12,10 +15,14 @@ C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\data\BikeData.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\data\CarData.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\data\MotorbikeData.java
+C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\data\SearchDemo.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\exception\AppException.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\Bike.java
+C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\BrakeType.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\Car.java
+C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\Color.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\Motorbike.java
+C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\SuspensionType.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\Vehicle.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\VehicleAlimentationType.java
 C:\Users\Betacom\Desktop\Dev\Java\Projects\betacom\GarageEvolved\src\com\betacom\objects\VehicleBrand.java

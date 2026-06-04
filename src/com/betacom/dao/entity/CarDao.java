@@ -15,9 +15,7 @@ public class CarDao extends VehicleDao {
 
 	public List<Car> findAll() {
 		return db.query(config.getQuery("query.car.findAll"))
-				.stream()
-				.map(this::build)
-				.collect(Collectors.toList());
+				.stream().map(this::build).collect(Collectors.toList());
 	}
 
 	public Car findById(Integer id) {
@@ -25,7 +23,28 @@ public class CarDao extends VehicleDao {
 		return row == null ? null : build(row);
 	}
 
-	// idVehicle è la PK generata da VehicleDao.insert() — deve essere chiamato prima
+	// Ricerca per targa parziale — ILIKE, case-insensitive
+	// Il chiamante deve wrappare il testo con % (es. "%" + text + "%")
+	public List<Car> searchByPlate(String pattern) {
+		return db.query(config.getQuery("query.car.searchByPlate"), pattern)
+				.stream().map(this::build).collect(Collectors.toList());
+	}
+
+	public List<Car> findByBrand(Integer idBrand) {
+		return db.query(config.getQuery("query.car.findByBrand"), idBrand)
+				.stream().map(this::build).collect(Collectors.toList());
+	}
+
+	public List<Car> findByColor(Integer idColor) {
+		return db.query(config.getQuery("query.car.findByColor"), idColor)
+				.stream().map(this::build).collect(Collectors.toList());
+	}
+
+	public List<Car> findByYear(Integer year) {
+		return db.query(config.getQuery("query.car.findByYear"), year)
+				.stream().map(this::build).collect(Collectors.toList());
+	}
+
 	public int insert(Integer idVehicle, String plate, Integer cc, Integer doors) {
 		return db.save(config.getQuery("update.car.insert"), true, idVehicle, plate, cc, doors);
 	}
@@ -34,7 +53,6 @@ public class CarDao extends VehicleDao {
 		return db.save(config.getQuery("update.car.delete"), false, id);
 	}
 
-	// Costruisce un Car completo: prima i campi Vehicle (JOIN), poi quelli specifici
 	protected Car build(Map<String, Object> row) {
 		Car car = new Car();
 		fillVehicleFields(car, row);

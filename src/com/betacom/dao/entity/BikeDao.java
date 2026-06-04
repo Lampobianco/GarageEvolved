@@ -15,9 +15,7 @@ public class BikeDao extends VehicleDao {
 
 	public List<Bike> findAll() {
 		return db.query(config.getQuery("query.bike.findAll"))
-				.stream()
-				.map(this::build)
-				.collect(Collectors.toList());
+				.stream().map(this::build).collect(Collectors.toList());
 	}
 
 	public Bike findById(Integer id) {
@@ -25,8 +23,20 @@ public class BikeDao extends VehicleDao {
 		return row == null ? null : build(row);
 	}
 
-	public int insert(Integer idVehicle, String brakeType, String suspensionType, Boolean foldable) {
-		return db.save(config.getQuery("update.bike.insert"), true, idVehicle, brakeType, suspensionType, foldable);
+	public List<Bike> findByType(Integer idType) {
+		return db.query(config.getQuery("query.bike.findByType"), idType)
+				.stream().map(this::build).collect(Collectors.toList());
+	}
+
+	public List<Bike> findByBrand(Integer idBrand) {
+		return db.query(config.getQuery("query.bike.findByBrand"), idBrand)
+				.stream().map(this::build).collect(Collectors.toList());
+	}
+
+	// idBrakeType e idSuspensionType sono FK verso le rispettive tabelle lookup
+	public int insert(Integer idVehicle, Integer idBrakeType, Integer idSuspensionType, Boolean foldable) {
+		return db.save(config.getQuery("update.bike.insert"), true,
+				idVehicle, idBrakeType, idSuspensionType, foldable);
 	}
 
 	public int delete(Integer id) {
@@ -36,10 +46,10 @@ public class BikeDao extends VehicleDao {
 	protected Bike build(Map<String, Object> row) {
 		Bike b = new Bike();
 		fillVehicleFields(b, row);
-		b.setIdBike((Integer)        row.get("id_bike"));
-		b.setBrakeType((String)      row.get("brake_type"));
-		b.setSuspensionType((String) row.get("suspension_type"));
-		b.setFoldable((Boolean)      row.get("foldable"));
+		b.setIdBike((Integer)             row.get("id_bike"));
+		b.setFoldable((Boolean)           row.get("foldable"));
+		b.setBrakeTypeName((String)       row.get("brake_type_name"));
+		b.setSuspensionTypeName((String)  row.get("suspension_type_name"));
 		return b;
 	}
 }

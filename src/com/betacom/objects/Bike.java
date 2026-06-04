@@ -11,18 +11,16 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class Bike extends Vehicle {
 
-	private Integer idBike;         // PK della tabella bikes
-	private Integer numberOfGears;  // numero di marce  →  es. 3, 6, 21
-	private String  brakeType;      // tipo di freno  →  es. "Disco", "V-Brake", "Idraulico"
-	private String  suspensionType; // tipo di sospensione  →  es. "Rigida", "Anteriore", "Full"
-	private Boolean foldable;       // è pieghevole?  →  es. true, false
+	private Integer idBike;
+	private String  brakeTypeName;      // es. "Disco Idraulico", "V-Brake" — dalla tabella brake_types
+	private String  suspensionTypeName; // es. "Full", "Rigida" — dalla tabella suspension_types
+	private Boolean foldable;           // true = pieghevole
 
 	@Override
 	public String toString() {
 		return "Bike [" + super.toString() +
-			", numberOfGears=" + numberOfGears +
-			", brakeType=" + brakeType +
-			", suspensionType=" + suspensionType +
+			", brakeType=" + brakeTypeName +
+			", suspension=" + suspensionTypeName +
 			", foldable=" + foldable + "]";
 	}
 }
