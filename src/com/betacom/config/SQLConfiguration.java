@@ -83,12 +83,18 @@ public class SQLConfiguration {
     }
 
     public void commit() {
-        try { getConnection().commit(); }
+        try {
+            getConnection().commit();
+            getConnection().setAutoCommit(true); // ripristina autocommit dopo ogni transazione
+        }
         catch (Exception e) { throw new AppException(e.getMessage()); }
     }
 
     public void rollback() {
-        try { getConnection().rollback(); }
+        try {
+            getConnection().rollback();
+            getConnection().setAutoCommit(true); // ripristina autocommit anche dopo un rollback
+        }
         catch (Exception e) { throw new AppException(e.getMessage()); }
     }
 }
