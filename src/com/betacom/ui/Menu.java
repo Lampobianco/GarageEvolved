@@ -1,7 +1,7 @@
 package com.betacom.ui;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 
 import com.betacom.config.SQLConfiguration;
@@ -35,17 +35,20 @@ public class Menu {
             System.out.println("   5  →  Stampa tutti i veicoli");
             System.out.println("   6  →  Esci");
             System.out.println(LINE);
+            // Map scelta → azione — nessun switch
+            Map<Integer, Runnable> actions = Map.of(
+                1, this::addVehicles,
+                2, this::updateVehicle,
+                3, this::searchVehicle,
+                4, this::deleteVehicle,
+                5, this::printVehicles,
+                6, this::exit
+            );
             int scelta = ask("Scelta");
             System.out.print(SPACE);
-            switch (scelta) {
-                case 1 -> addVehicles();
-                case 2 -> updateVehicle();
-                case 3 -> searchVehicle();
-                case 4 -> deleteVehicle();
-                case 5 -> printVehicles();
-                case 6 -> exit();
-                default -> System.out.println("   Scelta non valida — scegli un numero da 1 a 6.");
-            }
+            Optional.ofNullable(actions.get(scelta))
+                    .orElse(() -> System.out.println("   Scelta non valida — scegli da 1 a 6."))
+                    .run();
             waitEnter();
         }
     }
@@ -92,22 +95,22 @@ public class Menu {
         System.out.printf("   6  →  N. marce     attuale: %d%n", c.getGears());
         System.out.println("   0  →  Annulla");
         System.out.println(LINE);
+        Car upd = new Car();
+        // Map campo → lambda che imposta il valore sull'oggetto vuoto
+        Map<Integer, Runnable> fields = Map.of(
+            1, () -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); },
+            2, () -> upd.setProductionYear(ask("Nuovo anno")),
+            3, () -> upd.setLicensePlate(askString("Nuova targa")),
+            4, () -> upd.setCc(ask("Nuova cilindrata")),
+            5, () -> upd.setNumberOfDoors(ask("N. porte")),
+            6, () -> upd.setGears(ask("N. marce"))
+        );
         int campo = ask("Campo da modificare");
         if (campo == 0) return;
         System.out.print(SPACE);
-
-        // Crea un oggetto vuoto — imposta solo il campo scelto
-        // Il dynamic update aggiorna solo i campi non-null
-        Car upd = new Car();
-        switch (campo) {
-            case 1 -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); }
-            case 2 -> upd.setProductionYear(ask("Nuovo anno"));
-            case 3 -> upd.setLicensePlate(askString("Nuova targa"));
-            case 4 -> upd.setCc(ask("Nuova cilindrata"));
-            case 5 -> upd.setNumberOfDoors(ask("N. porte"));
-            case 6 -> upd.setGears(ask("N. marce"));
-            default -> { System.out.println("   Campo non valido."); return; }
-        }
+        Runnable action = fields.get(campo);
+        if (action == null) { System.out.println("   Campo non valido."); return; }
+        action.run();
         service.updateCar(c.getId(), upd);
         System.out.println("\n   Aggiornamento eseguito.");
     }
@@ -128,14 +131,16 @@ public class Menu {
         System.out.print(SPACE);
 
         Motorbike upd = new Motorbike();
-        switch (campo) {
-            case 1 -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); }
-            case 2 -> upd.setProductionYear(ask("Nuovo anno"));
-            case 3 -> upd.setLicensePlate(askString("Nuova targa"));
-            case 4 -> upd.setCc(ask("Nuova cilindrata"));
-            case 5 -> upd.setGears(ask("N. marce"));
-            default -> { System.out.println("   Campo non valido."); return; }
-        }
+        Map<Integer, Runnable> fields = Map.of(
+            1, () -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); },
+            2, () -> upd.setProductionYear(ask("Nuovo anno")),
+            3, () -> upd.setLicensePlate(askString("Nuova targa")),
+            4, () -> upd.setCc(ask("Nuova cilindrata")),
+            5, () -> upd.setGears(ask("N. marce"))
+        );
+        Runnable action = fields.get(campo);
+        if (action == null) { System.out.println("   Campo non valido."); return; }
+        action.run();
         service.updateMotorbike(m.getId(), upd);
         System.out.println("\n   Aggiornamento eseguito.");
     }
@@ -157,15 +162,17 @@ public class Menu {
         System.out.print(SPACE);
 
         Bike upd = new Bike();
-        switch (campo) {
-            case 1 -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); }
-            case 2 -> upd.setProductionYear(ask("Nuovo anno"));
-            case 3 -> { printBrakeTypes(); upd.setIdBrakeType(ask("Tipo freno (numero)")); }
-            case 4 -> { printSuspensions(); upd.setIdSuspensionType(ask("Sospensione (numero)")); }
-            case 5 -> upd.setFoldable(askString("Pieghevole? (s/n)").equalsIgnoreCase("s"));
-            case 6 -> upd.setGears(ask("N. marce"));
-            default -> { System.out.println("   Campo non valido."); return; }
-        }
+        Map<Integer, Runnable> fields = Map.of(
+            1, () -> { printColors(); upd.setIdColor(ask("Nuovo colore (numero)")); },
+            2, () -> upd.setProductionYear(ask("Nuovo anno")),
+            3, () -> { printBrakeTypes(); upd.setIdBrakeType(ask("Tipo freno (numero)")); },
+            4, () -> { printSuspensions(); upd.setIdSuspensionType(ask("Sospensione (numero)")); },
+            5, () -> upd.setFoldable(askString("Pieghevole? (s/n)").equalsIgnoreCase("s")),
+            6, () -> upd.setGears(ask("N. marce"))
+        );
+        Runnable action = fields.get(campo);
+        if (action == null) { System.out.println("   Campo non valido."); return; }
+        action.run();
         service.updateBike(b.getId(), upd);
         System.out.println("\n   Aggiornamento eseguito.");
     }
