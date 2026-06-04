@@ -6,26 +6,41 @@
 
 ----------------------------------------------------------------
   DATABASE — vehicles_db (PostgreSQL)
+  Stato attuale: 11 tabelle
 ----------------------------------------------------------------
 
-Abbiamo 8 tabelle:
+  TABELLA PRINCIPALE:
+  vehicles                  → dati comuni a tutti i veicoli (rinominata da vehicle)
 
-  vehicle                   → tabella principale, contiene i dati comuni di ogni veicolo
-  cars                      → dati specifici delle automobili (FK su vehicle)
-  motorbikes                → dati specifici delle moto (FK su vehicle)
-  bikes                     → dati specifici delle bici (FK su vehicle)
-  vehicle_types             → lookup: tipi di veicolo (SUV, Berlina, Moto...)
-  vehicle_brands            → lookup: marche (Fiat, BMW, Tesla...)
-  vehicle_models            → lookup: modelli (Panda, Golf...) — collegati al brand
-  vehicle_alimentation_types → lookup: carburanti (Benzina, Elettrico...)
+  SPECIALIZZAZIONI (FK su vehicles):
+  cars                      → dati specifici auto (targa UNIQUE, cilindrata, porte)
+  motorbikes                → dati specifici moto (targa UNIQUE, cilindrata)
+  bikes                     → dati specifici bici (FK freni, FK sospensioni, pieghevole)
 
-  Le tabelle "lookup" contengono dati fissi di riferimento
-  (non si inseriscono dall'app, esistono già nel DB).
+  LOOKUP — dati fissi di riferimento, non si modificano dall'app:
+  vehicle_types             → tipi (Utilitaria, SUV, Moto, Bici da Corsa...)
+  vehicle_brands            → marche auto (Fiat, BMW...) + moto (Ducati, Yamaha...) + bici (Trek, Bianchi...)
+  vehicle_models            → modelli collegati al brand (Panda→Fiat, Panigale V4→Ducati...)
+  vehicle_alimentation_types → carburanti (Benzina, Diesel, Elettrico, Nessuna per bici)
+  vehicle_colors            → colori (Rosso, Nero, Bianco...) — separati per essere dinamici
+  brake_types               → tipi di freno per bici (V-Brake, Disco Idraulico...)
+  suspension_types          → tipi di sospensione per bici (Rigida, Full, Anteriore...)
+
+  VINCOLI AGGIUNTI:
+  - UNIQUE su licence_plate in cars e motorbikes (no targhe duplicate)
+  - FK da vehicles → vehicle_colors (colore non più stringa libera)
+  - FK da bikes → brake_types e suspension_types (non più stringhe libere)
+
+  SCRIPT DI SETUP:
+  Il file db/vehicles_db_setup.sql ricrea tutto da zero.
+  Da casa dopo git pull: eseguilo su PostgreSQL e il DB è identico.
 
   Perché questa struttura?
-  Separare i dati comuni (vehicle) da quelli specifici (cars/motorbikes/bikes)
+  Separare i dati comuni (vehicles) da quelli specifici (cars/motorbikes/bikes)
   evita colonne vuote. Una bici non ha targa né cilindrata — metterle
   tutte in una tabella sola sarebbe confuso e sprecato.
+  Tutti i dati variabili (colori, freni, sospensioni) sono in tabelle lookup
+  per poterli gestire dinamicamente senza modificare il codice.
 
 
 ----------------------------------------------------------------
