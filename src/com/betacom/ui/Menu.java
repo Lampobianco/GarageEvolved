@@ -17,216 +17,203 @@ public class Menu {
     private final Scanner        sc      = new Scanner(System.in);
     private final VehicleService service = new VehicleService();
 
-    private static final String LINE = "─────────────────────────────────────";
+    private static final String LINE  = "─────────────────────────────────────";
+    private static final String SPACE = "\n\n\n";
 
     // ─── Avvio ────────────────────────────────────────────────────────────────
 
     public void start() {
-        clear();
         while (true) {
-            showMain();
-            int scelta = readInt();
+            System.out.print(SPACE);
+            System.out.println(LINE);
+            System.out.println("   GARAGE EVOLVED — Scegli cosa vuoi fare:");
+            System.out.println(LINE);
+            System.out.println("   1  →  Carica veicoli dal file");
+            System.out.println("   2  →  Modifica un veicolo");
+            System.out.println("   3  →  Cerca un veicolo");
+            System.out.println("   4  →  Elimina un veicolo");
+            System.out.println("   5  →  Stampa tutti i veicoli");
+            System.out.println("   6  →  Esci");
+            System.out.println(LINE);
+            int scelta = ask("Scelta");
+            System.out.print(SPACE);
             switch (scelta) {
-                case 1 -> { addVehicles();   pause(); }
-                case 2 -> { updateVehicle(); pause(); }
-                case 3 -> { searchVehicle(); pause(); }
-                case 4 -> { deleteVehicle(); pause(); }
-                case 5 -> { printVehicles(); pause(); }
+                case 1 -> addVehicles();
+                case 2 -> updateVehicle();
+                case 3 -> searchVehicle();
+                case 4 -> deleteVehicle();
+                case 5 -> printVehicles();
                 case 6 -> exit();
-                default -> { msg("   Scelta non valida — scegli un numero tra 1 e 6."); pause(); }
+                default -> System.out.println("   Scelta non valida — scegli un numero da 1 a 6.");
             }
+            waitEnter();
         }
     }
 
-    // ─── Menu principale ──────────────────────────────────────────────────────
-
-    private void showMain() {
-        clear();
-        System.out.println(LINE);
-        System.out.println("   GARAGE EVOLVED");
-        System.out.println(LINE);
-        System.out.println("   Scegli cosa vuoi fare:\n");
-        System.out.println("   1  →  Carica veicoli dal file");
-        System.out.println("   2  →  Modifica un veicolo");
-        System.out.println("   3  →  Cerca un veicolo");
-        System.out.println("   4  →  Elimina un veicolo");
-        System.out.println("   5  →  Stampa tutti i veicoli");
-        System.out.println("   6  →  Esci");
-        System.out.println(LINE);
-        System.out.print("   Scelta: ");
-    }
-
-    // ─── 1 · Carica dal file ──────────────────────────────────────────────────
+    // ─── 1 · Carica ───────────────────────────────────────────────────────────
 
     private void addVehicles() {
-        clear();
         System.out.println(LINE);
-        System.out.println("   CARICA VEICOLI");
+        System.out.println("   CARICA VEICOLI DAL FILE");
         System.out.println(LINE);
         service.clearAllVehicles();
         FileLoader.load("data-files/vehicles_data.txt", service);
-        msg("Veicoli caricati correttamente.");
+        System.out.println("\n   Veicoli caricati.");
     }
 
     // ─── 2 · Modifica ─────────────────────────────────────────────────────────
 
     private void updateVehicle() {
-        clear();
-        List<Object> list = showVehicleList("MODIFICA VEICOLO");
-        if (list.isEmpty()) return;
-        System.out.print("\n   Numero veicolo da modificare (0 annulla): ");
-        int idx = readInt() - 1;
-        if (idx < 0 || idx >= list.size()) return;
+        System.out.println(LINE);
+        System.out.println("   MODIFICA VEICOLO");
+        System.out.println(LINE);
+        int vehicleId = ask("ID veicolo da modificare (0 annulla)");
+        if (vehicleId <= 0) return;
+        System.out.print(SPACE);
 
-        Object v = list.get(idx);
-        clear();
-        if      (v instanceof Car c)       updateCarMenu(c);
-        else if (v instanceof Motorbike m) updateMotoMenu(m);
-        else if (v instanceof Bike b)      updateBikeMenu(b);
+        Car car = service.findCarByVehicleId(vehicleId);
+        if (car != null)       { updateCarMenu(car);  return; }
+        Motorbike m = service.findMotoByVehicleId(vehicleId);
+        if (m != null)         { updateMotoMenu(m);   return; }
+        Bike b = service.findBikeByVehicleId(vehicleId);
+        if (b != null)         { updateBikeMenu(b);   return; }
+        System.out.println("   Nessun veicolo con ID: " + vehicleId);
     }
 
     private void updateCarMenu(Car c) {
         System.out.println(LINE);
-        System.out.printf("   MODIFICA AUTO — %s %s%n", c.getBrand(), c.getModel());
+        System.out.printf("   MODIFICA — %s %s  (ID %d)%n", c.getBrand(), c.getModel(), c.getId());
         System.out.println(LINE);
-        System.out.printf("   1  →  Colore       (%s)%n", c.getColorName());
-        System.out.printf("   2  →  Anno         (%d)%n", c.getProductionYear());
-        System.out.printf("   3  →  Targa        (%s)%n", c.getLicensePlate());
-        System.out.printf("   4  →  Cilindrata   (%d cc)%n", c.getCc());
-        System.out.printf("   5  →  N. porte     (%d)%n", c.getNumberOfDoors());
-        System.out.printf("   6  →  N. marce     (%d)%n", c.getGears());
+        System.out.printf("   1  →  Colore       attuale: %s%n", c.getColorName());
+        System.out.printf("   2  →  Anno         attuale: %d%n", c.getProductionYear());
+        System.out.printf("   3  →  Targa        attuale: %s%n", c.getLicensePlate());
+        System.out.printf("   4  →  Cilindrata   attuale: %d cc%n", c.getCc());
+        System.out.printf("   5  →  N. porte     attuale: %d%n", c.getNumberOfDoors());
+        System.out.printf("   6  →  N. marce     attuale: %d%n", c.getGears());
         System.out.println("   0  →  Annulla");
         System.out.println(LINE);
-        System.out.print("   Scelta: ");
-        switch (readInt()) {
-            case 1 -> { pickColor(); service.updateVehicleColor(c.getId(), readInt()); }
-            case 2 -> { System.out.print("   Nuovo anno: "); service.updateVehicleYear(c.getId(), readInt()); }
-            case 3 -> { System.out.print("   Nuova targa: "); service.updateCarPlate(c.getId(), sc.nextLine().trim()); }
-            case 4 -> { System.out.print("   Nuova cilindrata: "); service.updateCarCc(c.getId(), readInt()); }
-            case 5 -> { System.out.print("   N. porte: "); service.updateCarDoors(c.getId(), readInt()); }
-            case 6 -> { System.out.print("   N. marce: "); service.updateVehicleGears(c.getId(), readInt()); }
+        int campo = ask("Campo da modificare");
+        System.out.print(SPACE);
+        switch (campo) {
+            case 1 -> { printColors(); int col = ask("Nuovo colore (numero)"); service.updateVehicleColor(c.getId(), col); }
+            case 2 -> { int y = ask("Nuovo anno");           service.updateVehicleYear(c.getId(), y);   }
+            case 3 -> { String p = askString("Nuova targa"); service.updateCarPlate(c.getId(), p);      }
+            case 4 -> { int cc = ask("Nuova cilindrata");    service.updateCarCc(c.getId(), cc);         }
+            case 5 -> { int d = ask("N. porte");             service.updateCarDoors(c.getId(), d);       }
+            case 6 -> { int g = ask("N. marce");             service.updateVehicleGears(c.getId(), g);  }
+            case 0 -> { return; }
+            default -> { System.out.println("   Campo non valido."); return; }
         }
-        msg("Aggiornamento eseguito.");
+        System.out.println("\n   Aggiornamento eseguito.");
     }
 
     private void updateMotoMenu(Motorbike m) {
         System.out.println(LINE);
-        System.out.printf("   MODIFICA MOTO — %s %s%n", m.getBrand(), m.getModel());
+        System.out.printf("   MODIFICA — %s %s  (ID %d)%n", m.getBrand(), m.getModel(), m.getId());
         System.out.println(LINE);
-        System.out.printf("   1  →  Colore       (%s)%n", m.getColorName());
-        System.out.printf("   2  →  Anno         (%d)%n", m.getProductionYear());
-        System.out.printf("   3  →  Targa        (%s)%n", m.getLicensePlate());
-        System.out.printf("   4  →  Cilindrata   (%d cc)%n", m.getCc());
-        System.out.printf("   5  →  N. marce     (%d)%n", m.getGears());
+        System.out.printf("   1  →  Colore       attuale: %s%n", m.getColorName());
+        System.out.printf("   2  →  Anno         attuale: %d%n", m.getProductionYear());
+        System.out.printf("   3  →  Targa        attuale: %s%n", m.getLicensePlate());
+        System.out.printf("   4  →  Cilindrata   attuale: %d cc%n", m.getCc());
+        System.out.printf("   5  →  N. marce     attuale: %d%n", m.getGears());
         System.out.println("   0  →  Annulla");
         System.out.println(LINE);
-        System.out.print("   Scelta: ");
-        switch (readInt()) {
-            case 1 -> { pickColor(); service.updateVehicleColor(m.getId(), readInt()); }
-            case 2 -> { System.out.print("   Nuovo anno: "); service.updateVehicleYear(m.getId(), readInt()); }
-            case 3 -> { System.out.print("   Nuova targa: "); service.updateMotoPlate(m.getId(), sc.nextLine().trim()); }
-            case 4 -> { System.out.print("   Nuova cilindrata: "); service.updateMotoCc(m.getId(), readInt()); }
-            case 5 -> { System.out.print("   N. marce: "); service.updateVehicleGears(m.getId(), readInt()); }
+        int campo = ask("Campo da modificare");
+        System.out.print(SPACE);
+        switch (campo) {
+            case 1 -> { printColors(); int col = ask("Nuovo colore (numero)"); service.updateVehicleColor(m.getId(), col); }
+            case 2 -> { int y = ask("Nuovo anno");           service.updateVehicleYear(m.getId(), y);  }
+            case 3 -> { String p = askString("Nuova targa"); service.updateMotoPlate(m.getId(), p);    }
+            case 4 -> { int cc = ask("Nuova cilindrata");    service.updateMotoCc(m.getId(), cc);       }
+            case 5 -> { int g = ask("N. marce");             service.updateVehicleGears(m.getId(), g); }
+            case 0 -> { return; }
+            default -> { System.out.println("   Campo non valido."); return; }
         }
-        msg("Aggiornamento eseguito.");
+        System.out.println("\n   Aggiornamento eseguito.");
     }
 
     private void updateBikeMenu(Bike b) {
         System.out.println(LINE);
-        System.out.printf("   MODIFICA BICI — %s %s%n", b.getBrand(), b.getModel());
+        System.out.printf("   MODIFICA — %s %s  (ID %d)%n", b.getBrand(), b.getModel(), b.getId());
         System.out.println(LINE);
-        System.out.printf("   1  →  Colore       (%s)%n", b.getColorName());
-        System.out.printf("   2  →  Anno         (%d)%n", b.getProductionYear());
-        System.out.printf("   3  →  Tipo freno   (%s)%n", b.getBrakeTypeName());
-        System.out.printf("   4  →  Sospensione  (%s)%n", b.getSuspensionTypeName());
-        System.out.printf("   5  →  Pieghevole   (%s)%n", Boolean.TRUE.equals(b.getFoldable()) ? "Si" : "No");
-        System.out.printf("   6  →  N. marce     (%d)%n", b.getGears());
+        System.out.printf("   1  →  Colore       attuale: %s%n", b.getColorName());
+        System.out.printf("   2  →  Anno         attuale: %d%n", b.getProductionYear());
+        System.out.printf("   3  →  Tipo freno   attuale: %s%n", b.getBrakeTypeName());
+        System.out.printf("   4  →  Sospensione  attuale: %s%n", b.getSuspensionTypeName());
+        System.out.printf("   5  →  Pieghevole   attuale: %s%n", Boolean.TRUE.equals(b.getFoldable()) ? "Si" : "No");
+        System.out.printf("   6  →  N. marce     attuale: %d%n", b.getGears());
         System.out.println("   0  →  Annulla");
         System.out.println(LINE);
-        System.out.print("   Scelta: ");
-        switch (readInt()) {
-            case 1 -> { pickColor(); service.updateVehicleColor(b.getId(), readInt()); }
-            case 2 -> { System.out.print("   Nuovo anno: "); service.updateVehicleYear(b.getId(), readInt()); }
-            case 3 -> { pickBrakeType(); service.updateBikeBrakeType(b.getId(), readInt()); }
-            case 4 -> { pickSuspension(); service.updateBikeSuspension(b.getId(), readInt()); }
-            case 5 -> { System.out.print("   Pieghevole? (s/n): ");
-                        service.updateBikeFoldable(b.getId(), sc.nextLine().trim().equalsIgnoreCase("s")); }
-            case 6 -> { System.out.print("   N. marce: "); service.updateVehicleGears(b.getId(), readInt()); }
+        int campo = ask("Campo da modificare");
+        System.out.print(SPACE);
+        switch (campo) {
+            case 1 -> { printColors(); int col = ask("Nuovo colore (numero)"); service.updateVehicleColor(b.getId(), col); }
+            case 2 -> { int y = ask("Nuovo anno");   service.updateVehicleYear(b.getId(), y);      }
+            case 3 -> { printBrakeTypes(); int bt = ask("Tipo freno (numero)"); service.updateBikeBrakeType(b.getId(), bt); }
+            case 4 -> { printSuspensions(); int st = ask("Sospensione (numero)"); service.updateBikeSuspension(b.getId(), st); }
+            case 5 -> { String f = askString("Pieghevole? (s/n)"); service.updateBikeFoldable(b.getId(), f.equalsIgnoreCase("s")); }
+            case 6 -> { int g = ask("N. marce"); service.updateVehicleGears(b.getId(), g); }
+            case 0 -> { return; }
+            default -> { System.out.println("   Campo non valido."); return; }
         }
-        msg("Aggiornamento eseguito.");
+        System.out.println("\n   Aggiornamento eseguito.");
     }
 
     // ─── 3 · Cerca ────────────────────────────────────────────────────────────
 
     private void searchVehicle() {
-        clear();
         System.out.println(LINE);
         System.out.println("   CERCA VEICOLO");
         System.out.println(LINE);
-        System.out.println("   Inserisci targa (auto/moto) oppure ID veicolo:");
-        System.out.print("   → ");
-        String input = sc.nextLine().trim();
+        System.out.println("   Inserisci targa (auto/moto) oppure ID numerico:");
+        String input = askString("→");
 
         try {
-            // input numerico → cerca per id_vehicle
             int id = Integer.parseInt(input);
             Car car = service.findCarByVehicleId(id);
-            if (car != null) { printVehicleSummary(car); return; }
+            if (car != null) { Printer.printCar(car); return; }
             Motorbike m = service.findMotoByVehicleId(id);
-            if (m != null) { printVehicleSummary(m); return; }
+            if (m != null) { Printer.printMotorbike(m); return; }
             Bike b = service.findBikeByVehicleId(id);
-            if (b != null) { printVehicleSummary(b); return; }
-            msg("Nessun veicolo con ID: " + id);
+            if (b != null) { Printer.printBike(b); return; }
+            System.out.println("   Nessun veicolo con ID: " + id);
         } catch (NumberFormatException e) {
-            // input testuale → cerca per targa
             Car car = service.findCarByPlate(input.toUpperCase());
-            if (car != null) { printVehicleSummary(car); return; }
+            if (car != null) { Printer.printCar(car); return; }
             Motorbike m = service.findMotoByPlate(input.toUpperCase());
-            if (m != null) { printVehicleSummary(m); return; }
-            msg("Nessun veicolo con targa: " + input);
+            if (m != null) { Printer.printMotorbike(m); return; }
+            System.out.println("   Nessun veicolo con targa: " + input);
         }
     }
 
-    // ─── 4 · Elimina per ID ───────────────────────────────────────────────────
+    // ─── 4 · Elimina ──────────────────────────────────────────────────────────
 
     private void deleteVehicle() {
-        clear();
         System.out.println(LINE);
         System.out.println("   ELIMINA VEICOLO");
         System.out.println(LINE);
-        System.out.print("   ID veicolo da eliminare (0 annulla): ");
-        int vehicleId = readInt();
+        int vehicleId = ask("ID veicolo da eliminare (0 annulla)");
         if (vehicleId <= 0) return;
 
         Car car = service.findCarByVehicleId(vehicleId);
-        if (car != null) { service.deleteCar(car); msg("Auto eliminata."); return; }
-
+        if (car != null) { service.deleteCar(car); System.out.println("\n   Auto eliminata."); return; }
         Motorbike m = service.findMotoByVehicleId(vehicleId);
-        if (m != null) { service.deleteMotorbike(m); msg("Moto eliminata."); return; }
-
+        if (m != null) { service.deleteMotorbike(m); System.out.println("\n   Moto eliminata."); return; }
         Bike b = service.findBikeByVehicleId(vehicleId);
-        if (b != null) { service.deleteBike(b); msg("Bici eliminata."); return; }
-
-        msg("Nessun veicolo trovato con ID: " + vehicleId);
+        if (b != null) { service.deleteBike(b); System.out.println("\n   Bici eliminata."); return; }
+        System.out.println("   Nessun veicolo con ID: " + vehicleId);
     }
 
-    // ─── 5 · Stampa veicoli ───────────────────────────────────────────────────
+    // ─── 5 · Stampa ───────────────────────────────────────────────────────────
 
     private void printVehicles() {
-        clear();
-        System.out.println(LINE);
-        System.out.println("   VEICOLI NEL DB");
-        System.out.println(LINE);
-
-        var cars   = service.findAllCars();
-        var motos  = service.findAllMotorbikes();
-        var bikes  = service.findAllBikes();
-
+        var cars  = service.findAllCars();
+        var motos = service.findAllMotorbikes();
+        var bikes = service.findAllBikes();
         if (cars.isEmpty() && motos.isEmpty() && bikes.isEmpty()) {
-            msg("Nessun veicolo nel DB. Usa l'opzione 1 per caricarli.");
+            System.out.println("   Nessun veicolo. Usa opzione 1 per caricarli.");
             return;
         }
-
         Printer.printCars(cars);
         Printer.printMotorbikes(motos);
         Printer.printBikes(bikes);
@@ -236,100 +223,46 @@ public class Menu {
 
     private void exit() {
         SQLConfiguration.getInstance().closeConnection();
-        clear();
         System.out.println("   Arrivederci!");
         System.exit(0);
     }
 
-    // ─── Helpers display ──────────────────────────────────────────────────────
+    // ─── Lookup display ───────────────────────────────────────────────────────
 
-    // Mostra la lista numerata di tutti i veicoli nel DB
-    private List<Object> showVehicleList(String title) {
-        List<Object> all = new ArrayList<>();
-        all.addAll(service.findAllCars());
-        all.addAll(service.findAllMotorbikes());
-        all.addAll(service.findAllBikes());
-
-        System.out.println(LINE);
-        System.out.println("   " + title);
-        System.out.println(LINE);
-        if (all.isEmpty()) { msg("Nessun veicolo nel DB. Carica prima dal file (opzione 1)."); return all; }
-
-        for (int i = 0; i < all.size(); i++) {
-            Object v = all.get(i);
-            if (v instanceof Car c)
-                System.out.printf("   [%2d]  Auto   %-20s  %-8s  %s  (%d)%n",
-                    i + 1, c.getBrand() + " " + c.getModel(), c.getColorName(), c.getLicensePlate(), c.getProductionYear());
-            else if (v instanceof Motorbike m)
-                System.out.printf("   [%2d]  Moto   %-20s  %-8s  %s  (%d)%n",
-                    i + 1, m.getBrand() + " " + m.getModel(), m.getColorName(), m.getLicensePlate(), m.getProductionYear());
-            else if (v instanceof Bike b)
-                System.out.printf("   [%2d]  Bici   %-20s  %-8s  %s  (%d)%n",
-                    i + 1, b.getBrand() + " " + b.getModel(), b.getColorName(), b.getVehicleType(), b.getProductionYear());
-        }
-        System.out.println(LINE);
-        return all;
-    }
-
-    // Stampa il dettaglio di un singolo veicolo trovato
-    private void printVehicleSummary(Object v) {
-        System.out.println(LINE);
-        if (v instanceof Car c) {
-            System.out.printf("   AUTO  —  %s %s%n", c.getBrand(), c.getModel());
-            System.out.printf("   ID: %-5d  Colore: %-10s  Anno: %d%n", c.getId(), c.getColorName(), c.getProductionYear());
-            System.out.printf("   Targa: %-10s  Cilindrata: %d cc   Porte: %d%n", c.getLicensePlate(), c.getCc(), c.getNumberOfDoors());
-            System.out.printf("   Tipo: %-10s  Alimentaz.: %s%n", c.getVehicleType(), c.getAlimentationType());
-        } else if (v instanceof Motorbike m) {
-            System.out.printf("   MOTO  —  %s %s%n", m.getBrand(), m.getModel());
-            System.out.printf("   ID: %-5d  Colore: %-10s  Anno: %d%n", m.getId(), m.getColorName(), m.getProductionYear());
-            System.out.printf("   Targa: %-10s  Cilindrata: %d cc%n", m.getLicensePlate(), m.getCc());
-            System.out.printf("   Tipo: %-10s  Alimentaz.: %s%n", m.getVehicleType(), m.getAlimentationType());
-        } else if (v instanceof Bike b) {
-            System.out.printf("   BICI  —  %s %s%n", b.getBrand(), b.getModel());
-            System.out.printf("   ID: %-5d  Colore: %-10s  Anno: %d%n", b.getId(), b.getColorName(), b.getProductionYear());
-            System.out.printf("   Tipo: %-12s  Freni: %-15s  Sospensioni: %s%n", b.getVehicleType(), b.getBrakeTypeName(), b.getSuspensionTypeName());
-            System.out.printf("   Marce: %-3d  Pieghevole: %s%n", b.getGears(), Boolean.TRUE.equals(b.getFoldable()) ? "Si" : "No");
-        }
-        System.out.println(LINE);
-    }
-
-    // Mostra i colori disponibili e chiede la scelta
-    private void pickColor() {
+    private void printColors() {
         System.out.println("\n   Colori disponibili:");
         service.findAllColors().forEach(c -> System.out.printf("   %-2d  %s%n", c.getId(), c.getName()));
-        System.out.print("   Scegli colore: ");
     }
-
-    private void pickBrakeType() {
+    private void printBrakeTypes() {
         System.out.println("\n   Tipi di freno:");
         service.findAllBrakeTypes().forEach(b -> System.out.printf("   %-2d  %s%n", b.getId(), b.getName()));
-        System.out.print("   Scegli tipo freno: ");
     }
-
-    private void pickSuspension() {
+    private void printSuspensions() {
         System.out.println("\n   Tipi di sospensione:");
         service.findAllSuspensions().forEach(s -> System.out.printf("   %-2d  %s%n", s.getId(), s.getName()));
-        System.out.print("   Scegli sospensione: ");
     }
 
-    // ─── Utilities ────────────────────────────────────────────────────────────
+    // ─── Input helpers ────────────────────────────────────────────────────────
 
-    private int readInt() {
+    // Stampa il prompt, fa il flush e legge un intero
+    private int ask(String prompt) {
+        System.out.print("   " + prompt + ": ");
+        System.out.flush();
         try { return Integer.parseInt(sc.nextLine().trim()); }
-        catch (NumberFormatException e) { return -1; }
+        catch (Exception e) { return -1; }
     }
 
-    private void msg(String text) {
-        System.out.println("\n   " + text);
+    // Stampa il prompt, fa il flush e legge una stringa
+    private String askString(String prompt) {
+        System.out.print("   " + prompt + ": ");
+        System.out.flush();
+        return sc.nextLine().trim();
     }
 
-    private void pause() {
+    // Aspetta che l'utente prema INVIO
+    private void waitEnter() {
         System.out.print("\n   Premi INVIO per continuare...");
+        System.out.flush();
         sc.nextLine();
-    }
-
-    private void clear() {
-        // Stampa righe vuote per "pulire" la console
-        for (int i = 0; i < 3; i++) System.out.println();
     }
 }
