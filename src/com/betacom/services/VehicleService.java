@@ -212,7 +212,8 @@ public class VehicleService {
 			return idCar;
 		} catch (Exception e) {
 			config.rollback();
-			log.error("Errore inserimento auto: {}", e.getMessage());
+			if (isDuplicatePlate(e)) log.warn("Targa gia' presente nel DB — auto non caricata: {}", plate);
+			else                     log.error("Errore inserimento auto: {}", e.getMessage());
 			return -1;
 		}
 	}
@@ -229,7 +230,8 @@ public class VehicleService {
 			return idMotorbike;
 		} catch (Exception e) {
 			config.rollback();
-			log.error("Errore inserimento moto: {}", e.getMessage());
+			if (isDuplicatePlate(e)) log.warn("Targa gia' presente nel DB — moto non caricata: {}", plate);
+			else                     log.error("Errore inserimento moto: {}", e.getMessage());
 			return -1;
 		}
 	}
@@ -292,5 +294,12 @@ public class VehicleService {
 			config.rollback();
 			log.error("Errore eliminazione bici: {}", e.getMessage());
 		}
+	}
+
+	// Controlla se l'eccezione è una violazione UNIQUE sulla targa
+	// PostgreSQL usa il codice SQLState "23505" per le chiavi duplicate
+	private boolean isDuplicatePlate(Exception e) {
+		String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+		return msg.contains("23505") || msg.contains("duplicate key") || msg.contains("unique");
 	}
 }
