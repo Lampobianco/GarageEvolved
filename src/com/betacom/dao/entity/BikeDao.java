@@ -23,6 +23,11 @@ public class BikeDao extends VehicleDao {
 		return row == null ? null : build(row);
 	}
 
+	public Bike findByVehicleId(Integer vehicleId) {
+		Map<String, Object> row = db.get(config.getQuery("query.bike.findByVehicleId"), vehicleId);
+		return row == null ? null : build(row);
+	}
+
 	public List<Bike> findByType(Integer idType) {
 		return db.query(config.getQuery("query.bike.findByType"), idType)
 				.stream().map(this::build).collect(Collectors.toList());

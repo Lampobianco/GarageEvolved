@@ -85,7 +85,56 @@ public class VehicleService {
 	public List<SuspensionType>          findAllSuspensions()   { return suspDao.findAll();    }
 
 	// -------------------------
-	// UPDATE
+	// FIND per id_vehicle e targa
+	// -------------------------
+
+	public Car      findCarByVehicleId(Integer id)  { return carDao.findByVehicleId(id);  }
+	public Motorbike findMotoByVehicleId(Integer id) { return motoDao.findByVehicleId(id); }
+	public Bike     findBikeByVehicleId(Integer id) { return bikeDao.findByVehicleId(id); }
+	public Car      findCarByPlate(String plate)    { return carDao.findByPlate(plate);   }
+	public Motorbike findMotoByPlate(String plate)  { return motoDao.findByPlate(plate);  }
+
+	// -------------------------
+	// UPDATE campo per campo (tutti usano id_vehicle come chiave)
+	// -------------------------
+
+	public void updateVehicleColor(Integer vehicleId, Integer colorId) {
+		db.save(config.getQuery("update.vehicle.updateColor"), false, colorId, vehicleId);
+	}
+	public void updateVehicleYear(Integer vehicleId, Integer year) {
+		db.save(config.getQuery("update.vehicle.updateYear"), false,
+				java.sql.Date.valueOf(year + "-01-01"), vehicleId);
+	}
+	public void updateVehicleGears(Integer vehicleId, Integer gears) {
+		db.save(config.getQuery("update.vehicle.updateGears"), false, gears, vehicleId);
+	}
+	public void updateCarPlate(Integer vehicleId, String plate) {
+		db.save(config.getQuery("update.car.updatePlate"), false, plate, vehicleId);
+	}
+	public void updateCarCc(Integer vehicleId, Integer cc) {
+		db.save(config.getQuery("update.car.updateCc"), false, cc, vehicleId);
+	}
+	public void updateCarDoors(Integer vehicleId, Integer doors) {
+		db.save(config.getQuery("update.car.updateDoors"), false, doors, vehicleId);
+	}
+	public void updateMotoPlate(Integer vehicleId, String plate) {
+		db.save(config.getQuery("update.motorbike.updatePlate"), false, plate, vehicleId);
+	}
+	public void updateMotoCc(Integer vehicleId, Integer cc) {
+		db.save(config.getQuery("update.motorbike.updateCc"), false, cc, vehicleId);
+	}
+	public void updateBikeBrakeType(Integer vehicleId, Integer brakeTypeId) {
+		db.save(config.getQuery("update.bike.updateBrakeType"), false, brakeTypeId, vehicleId);
+	}
+	public void updateBikeSuspension(Integer vehicleId, Integer suspTypeId) {
+		db.save(config.getQuery("update.bike.updateSuspension"), false, suspTypeId, vehicleId);
+	}
+	public void updateBikeFoldable(Integer vehicleId, Boolean foldable) {
+		db.save(config.getQuery("update.bike.updateFoldable"), false, foldable, vehicleId);
+	}
+
+	// -------------------------
+	// UPDATE (vecchi metodi da file — aggiornamento colore per targa)
 	// -------------------------
 
 	// Aggiorna il colore di un veicolo tramite targa

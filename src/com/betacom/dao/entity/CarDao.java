@@ -23,6 +23,11 @@ public class CarDao extends VehicleDao {
 		return row == null ? null : build(row);
 	}
 
+	public Car findByVehicleId(Integer vehicleId) {
+		Map<String, Object> row = db.get(config.getQuery("query.car.findByVehicleId"), vehicleId);
+		return row == null ? null : build(row);
+	}
+
 	// Ricerca per targa esatta
 	public Car findByPlate(String plate) {
 		Map<String, Object> row = db.get(config.getQuery("query.car.findByPlate"), plate);

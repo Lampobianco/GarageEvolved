@@ -23,6 +23,11 @@ public class MotorbikeDao extends VehicleDao {
 		return row == null ? null : build(row);
 	}
 
+	public Motorbike findByVehicleId(Integer vehicleId) {
+		Map<String, Object> row = db.get(config.getQuery("query.motorbike.findByVehicleId"), vehicleId);
+		return row == null ? null : build(row);
+	}
+
 	public Motorbike findByPlate(String plate) {
 		Map<String, Object> row = db.get(config.getQuery("query.motorbike.findByPlate"), plate);
 		return row == null ? null : build(row);

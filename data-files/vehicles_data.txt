@@ -28,9 +28,6 @@ INS|MOTO|5,38,1,23,5,2,6,2021,YA09981,998
 INS|BIKE|11,48,7,28,2,2,11,2023,3,1,false
 INS|BIKE|12,50,7,29,6,2,12,2022,3,3,false
 
-# --- Demo CRUD: mostra Update e Delete in azione ---
-# Inserisce una Fiat Panda Gialla, le aggiorna il colore in Grigio, poi la cancella
-
 INS|CAR|1,1,1,1,7,4,5,2019,DEMO001A,1000,3
 UPD|CAR|DEMO001A,4
 DEL|CAR|DEMO001A
