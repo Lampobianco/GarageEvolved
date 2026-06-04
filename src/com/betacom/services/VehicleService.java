@@ -2,6 +2,7 @@ package com.betacom.services;
 
 import java.util.List;
 
+import com.betacom.config.DBManager;
 import com.betacom.config.SQLConfiguration;
 import com.betacom.dao.entity.BikeDao;
 import com.betacom.dao.entity.CarDao;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class VehicleService {
 
+	private final DBManager                  db          = new DBManager();
 	private final CarDao                     carDao      = new CarDao();
 	private final MotorbikeDao               motoDao     = new MotorbikeDao();
 	private final BikeDao                    bikeDao     = new BikeDao();
@@ -42,6 +44,20 @@ public class VehicleService {
 	private final BrakeTypeDao               brakeDao    = new BrakeTypeDao();
 	private final SuspensionTypeDao          suspDao     = new SuspensionTypeDao();
 	private final SQLConfiguration           config      = SQLConfiguration.getInstance();
+
+	// -------------------------
+	// SETUP — gestione dati
+	// -------------------------
+
+	// Svuota tutti i veicoli dal DB (rispetta l'ordine FK)
+	// Usato all'avvio per ricaricare i dati freschi dai file
+	public void clearAllVehicles() {
+		db.save("DELETE FROM cars",       false);
+		db.save("DELETE FROM motorbikes", false);
+		db.save("DELETE FROM bikes",      false);
+		db.save("DELETE FROM vehicles",   false);
+		log.info("DB veicoli svuotato");
+	}
 
 	// -------------------------
 	// READ — lista completa

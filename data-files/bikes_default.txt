@@ -1,0 +1,19 @@
+# ============================================================
+# GarageEvolved — dati default BICI
+# Formato: typeId, modelId, alimentId, brandId, colorId, ruote, marce, anno, idBrakeType, idSuspType, foldable
+#
+# Riferimento ID lookup:
+#   vehicle_types    → 11=BiciDaCorsa  12=MountainBike  13=CityBike
+#   vehicle_brands   → 28=Trek  29=Giant
+#   vehicle_models   → 48=EmondaSLR  50=TCRAdvanced
+#   alimentazione    → 7=Nessuna (bici a pedale)
+#   vehicle_colors   → 2=Nero  6=Verde
+#   brake_types      → 3=DiscoIdraulico
+#   suspension_types → 1=Rigida  3=Full
+# ============================================================
+
+# Trek Emonda SLR — Bici da Corsa — Nessuna — Nero
+11, 48, 7, 28, 2, 2, 11, 2023, 3, 1, false
+
+# Giant TCR Advanced — Mountain Bike — Nessuna — Verde
+12, 50, 7, 29, 6, 2, 12, 2022, 3, 3, false

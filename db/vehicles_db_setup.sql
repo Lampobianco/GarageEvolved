@@ -147,38 +147,10 @@ INSERT INTO vehicle_models (vehicle_model_name, id_vehicle_brand) VALUES
   ('Oltre RC',30),('Infinito CV',30);
 
 -- =============================================
--- Dati permanenti di esempio
--- AA/BB/CC/DD/EE = permanenti
--- TMP*** = test runtime (inseriti e cancellati ad ogni avvio)
+-- I veicoli NON vengono inseriti qui.
+-- Vengono caricati all'avvio del programma
+-- dai file in data-files/
+--   cars_default.txt
+--   motorbikes_default.txt
+--   bikes_default.txt
 -- =============================================
-
--- Auto permanenti
-WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (1,1,1,1,1,4,5,'2020-01-01') RETURNING id_vehicle)
-INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle,'AA000AA',1100,5 FROM v;
-
-WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (3,17,2,8,2,4,8,'2022-01-01') RETURNING id_vehicle)
-INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle,'BB000BB',2000,4 FROM v;
-
-WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (3,29,5,16,3,4,1,'2023-01-01') RETURNING id_vehicle)
-INSERT INTO cars (id_vehicle,licence_plate,cc,number_of_doors) SELECT id_vehicle,'CC000CC',0,4 FROM v;
-
--- Moto permanenti
-WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (5,36,1,21,1,2,6,'2022-01-01') RETURNING id_vehicle)
-INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'DU11031',1103 FROM v;
-
-WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (5,38,1,23,5,2,6,'2021-01-01') RETURNING id_vehicle)
-INSERT INTO motorbikes (id_vehicle,licence_plate,cc) SELECT id_vehicle,'YA09981',998 FROM v;
-
--- Bici permanenti
-WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (11,48,7,28,2,2,11,'2023-01-01') RETURNING id_vehicle)
-INSERT INTO bikes (id_vehicle,id_brake_type,id_suspension_type,foldable) SELECT id_vehicle,3,1,false FROM v;
-
-WITH v AS (INSERT INTO vehicles (id_vehicle_type,id_vehicle_model,id_vehicle_alimentation_type,id_vehicle_brand,id_color,number_of_wheels,numbers_of_gears,production_year)
-  VALUES (12,50,7,29,6,2,12,'2022-01-01') RETURNING id_vehicle)
-INSERT INTO bikes (id_vehicle,id_brake_type,id_suspension_type,foldable) SELECT id_vehicle,3,3,false FROM v;
