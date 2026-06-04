@@ -1,0 +1,36 @@
+# ============================================================
+# GarageEvolved — vehicles_data.txt
+#
+# Formato:   OPERAZIONE|TIPO|campo1,campo2,...
+# Separatore colonne:  | (pipe) tra le 3 parti principali
+#                      , (virgola) tra i singoli campi
+#
+# OPERAZIONI
+#   INS = inserimento nuovo veicolo
+#   UPD = aggiornamento (plate,newColorId)
+#   DEL = cancellazione per targa
+#
+# TIPI
+#   CAR  → typeId,modelId,alimentId,brandId,colorId,ruote,marce,anno,targa,cc,porte
+#   MOTO → typeId,modelId,alimentId,brandId,colorId,ruote,marce,anno,targa,cc
+#   BIKE → typeId,modelId,alimentId,brandId,colorId,ruote,marce,anno,idBrake,idSusp,foldable
+# ============================================================
+
+# --- Veicoli di default ---
+
+INS|CAR|1,1,1,1,1,4,5,2020,AA000AA,1100,5
+INS|CAR|3,17,2,8,2,4,8,2022,BB000BB,2000,4
+INS|CAR|3,29,5,16,3,4,1,2023,CC000CC,0,4
+
+INS|MOTO|5,36,1,21,1,2,6,2022,DU11031,1103
+INS|MOTO|5,38,1,23,5,2,6,2021,YA09981,998
+
+INS|BIKE|11,48,7,28,2,2,11,2023,3,1,false
+INS|BIKE|12,50,7,29,6,2,12,2022,3,3,false
+
+# --- Demo CRUD: mostra Update e Delete in azione ---
+# Inserisce una Fiat Panda Gialla, le aggiorna il colore in Grigio, poi la cancella
+
+INS|CAR|1,1,1,1,7,4,5,2019,DEMO001A,1000,3
+UPD|CAR|DEMO001A,4
+DEL|CAR|DEMO001A

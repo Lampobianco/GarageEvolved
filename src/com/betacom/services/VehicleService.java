@@ -85,6 +85,41 @@ public class VehicleService {
 	public List<SuspensionType>          findAllSuspensions()   { return suspDao.findAll();    }
 
 	// -------------------------
+	// UPDATE
+	// -------------------------
+
+	// Aggiorna il colore di un veicolo tramite targa
+	public void updateCarColor(String plate, Integer newColorId) {
+		Car car = carDao.findByPlate(plate);
+		if (car == null) { log.error("Auto non trovata per targa: {}", plate); return; }
+		db.save(config.getQuery("update.vehicle.updateColor"), false, newColorId, car.getId());
+		log.info("Colore aggiornato — {} (color id: {})", plate, newColorId);
+	}
+
+	public void updateMotoColor(String plate, Integer newColorId) {
+		Motorbike m = motoDao.findByPlate(plate);
+		if (m == null) { log.error("Moto non trovata per targa: {}", plate); return; }
+		db.save(config.getQuery("update.vehicle.updateColor"), false, newColorId, m.getId());
+		log.info("Colore aggiornato — {} (color id: {})", plate, newColorId);
+	}
+
+	// -------------------------
+	// DELETE per targa
+	// -------------------------
+
+	public void deleteCarByPlate(String plate) {
+		Car car = carDao.findByPlate(plate);
+		if (car != null) deleteCar(car);
+		else log.warn("Auto non trovata per targa: {}", plate);
+	}
+
+	public void deleteMotoByPlate(String plate) {
+		Motorbike m = motoDao.findByPlate(plate);
+		if (m != null) deleteMotorbike(m);
+		else log.warn("Moto non trovata per targa: {}", plate);
+	}
+
+	// -------------------------
 	// RICERCA — auto
 	// -------------------------
 

@@ -23,6 +23,12 @@ public class CarDao extends VehicleDao {
 		return row == null ? null : build(row);
 	}
 
+	// Ricerca per targa esatta
+	public Car findByPlate(String plate) {
+		Map<String, Object> row = db.get(config.getQuery("query.car.findByPlate"), plate);
+		return row == null ? null : build(row);
+	}
+
 	// Ricerca per targa parziale — ILIKE, case-insensitive
 	// Il chiamante deve wrappare il testo con % (es. "%" + text + "%")
 	public List<Car> searchByPlate(String pattern) {

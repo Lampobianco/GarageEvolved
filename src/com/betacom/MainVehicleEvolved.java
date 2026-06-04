@@ -26,11 +26,9 @@ public class MainVehicleEvolved {
 		Printer.printBrakeTypes(service.findAllBrakeTypes());
 		Printer.printSuspensions(service.findAllSuspensions());
 
-		// Carica i dati default dai file .txt (svuota prima il DB per evitare duplicati)
+		// Svuota il DB e ricarica tutto dal file (INS, UPD, DEL gestiti dal loader)
 		service.clearAllVehicles();
-		FileLoader.loadCars("data-files/cars_default.txt", service);
-		FileLoader.loadMotorbikes("data-files/motorbikes_default.txt", service);
-		FileLoader.loadBikes("data-files/bikes_default.txt", service);
+		FileLoader.load("data-files/vehicles_data.txt", service);
 
 		// Demo CRUD runtime — inserisce, verifica e cancella veicoli temporanei
 		CarData.load(service);

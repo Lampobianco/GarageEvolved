@@ -23,6 +23,11 @@ public class MotorbikeDao extends VehicleDao {
 		return row == null ? null : build(row);
 	}
 
+	public Motorbike findByPlate(String plate) {
+		Map<String, Object> row = db.get(config.getQuery("query.motorbike.findByPlate"), plate);
+		return row == null ? null : build(row);
+	}
+
 	public List<Motorbike> searchByPlate(String pattern) {
 		return db.query(config.getQuery("query.motorbike.searchByPlate"), pattern)
 				.stream().map(this::build).collect(Collectors.toList());

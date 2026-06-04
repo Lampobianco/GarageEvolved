@@ -13,88 +13,42 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileLoader {
 
-    // Carica auto dal file e le inserisce tramite il service
-    public static void loadCars(String filePath, VehicleService service) {
-        log.info("Caricamento auto da file: {}", filePath);
-        readLines(filePath).forEach(params -> service.insertCar(
-            i(params, 0),   // typeId
-            i(params, 1),   // modelId
-            i(params, 2),   // alimentId
-            i(params, 3),   // brandId
-            i(params, 4),   // colorId
-            i(params, 5),   // ruote
-            i(params, 6),   // marce
-            i(params, 7),   // anno
-            s(params, 8),   // targa
-            i(params, 9),   // cc
-            i(params, 10)   // porte
-        ));
-    }
-
-    // Carica moto dal file
-    public static void loadMotorbikes(String filePath, VehicleService service) {
-        log.info("Caricamento moto da file: {}", filePath);
-        readLines(filePath).forEach(params -> service.insertMotorbike(
-            i(params, 0),   // typeId
-            i(params, 1),   // modelId
-            i(params, 2),   // alimentId
-            i(params, 3),   // brandId
-            i(params, 4),   // colorId
-            i(params, 5),   // ruote
-            i(params, 6),   // marce
-            i(params, 7),   // anno
-            s(params, 8),   // targa
-            i(params, 9)    // cc
-        ));
-    }
-
-    // Carica bici dal file
-    public static void loadBikes(String filePath, VehicleService service) {
-        log.info("Caricamento bici da file: {}", filePath);
-        readLines(filePath).forEach(params -> service.insertBike(
-            i(params, 0),   // typeId
-            i(params, 1),   // modelId
-            i(params, 2),   // alimentId
-            i(params, 3),   // brandId
-            i(params, 4),   // colorId
-            i(params, 5),   // ruote
-            i(params, 6),   // marce
-            i(params, 7),   // anno
-            i(params, 8),   // idBrakeType
-            i(params, 9),   // idSuspType
-            b(params, 10)   // foldable
-        ));
-    }
-
-    // Legge il file riga per riga, salta commenti (#) e righe vuote,
-    // restituisce ogni riga come lista di stringhe già splittate e trimmate
-    private static List<List<String>> readLines(String filePath) {
+    // Legge vehicles_data.txt ed esegue ogni operazione CRUD riga per riga
+    public static void load(String filePath, VehicleService service) {
+        log.info("Elaborazione file: {}", filePath);
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            return reader.lines()
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                    .map(line -> Arrays.stream(line.split(","))
-                                       .map(String::trim)
-                                       .collect(Collectors.toList()))
-                    .collect(Collectors.toList());
+            reader.lines()
+                  .map(String::trim)
+                  .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                  .forEach(line -> process(line, service));
         } catch (Exception e) {
             log.error("Impossibile leggere il file {}: {}", filePath, e.getMessage());
-            return List.of();
         }
     }
 
-    // Helper: converte la stringa in Integer
-    private static Integer i(List<String> p, int idx) {
-        return Integer.parseInt(p.get(idx));
+    // Scompone la riga in 3 parti: OPERAZIONE | TIPO | dati
+    // poi esegue l'operazione corrispondente
+    private static void process(String line, VehicleService service) {
+        String[] parts = line.split("\\|");
+        if (parts.length < 3) { log.warn("Riga non valida ignorata: {}", line); return; }
+
+        String op   = parts[0].trim().toUpperCase(); // INS, UPD, DEL
+        String type = parts[1].trim().toUpperCase(); // CAR, MOTO, BIKE
+        List<String> d = Arrays.stream(parts[2].split(","))
+                                .map(String::trim)
+                                .collect(Collectors.toList());
+        switch (op + "|" + type) {
+            case "INS|CAR"  -> service.insertCar(i(d,0),i(d,1),i(d,2),i(d,3),i(d,4),i(d,5),i(d,6),i(d,7),d.get(8),i(d,9),i(d,10));
+            case "INS|MOTO" -> service.insertMotorbike(i(d,0),i(d,1),i(d,2),i(d,3),i(d,4),i(d,5),i(d,6),i(d,7),d.get(8),i(d,9));
+            case "INS|BIKE" -> service.insertBike(i(d,0),i(d,1),i(d,2),i(d,3),i(d,4),i(d,5),i(d,6),i(d,7),i(d,8),i(d,9),b(d,10));
+            case "UPD|CAR"  -> service.updateCarColor(d.get(0), i(d,1));
+            case "UPD|MOTO" -> service.updateMotoColor(d.get(0), i(d,1));
+            case "DEL|CAR"  -> service.deleteCarByPlate(d.get(0));
+            case "DEL|MOTO" -> service.deleteMotoByPlate(d.get(0));
+            default         -> log.warn("Operazione non riconosciuta: {}|{}", op, type);
+        }
     }
 
-    // Helper: restituisce la stringa così com'è
-    private static String s(List<String> p, int idx) {
-        return p.get(idx);
-    }
-
-    // Helper: converte la stringa in Boolean
-    private static Boolean b(List<String> p, int idx) {
-        return Boolean.parseBoolean(p.get(idx));
-    }
+    private static Integer i(List<String> d, int idx) { return Integer.parseInt(d.get(idx)); }
+    private static Boolean b(List<String> d, int idx) { return Boolean.parseBoolean(d.get(idx)); }
 }
