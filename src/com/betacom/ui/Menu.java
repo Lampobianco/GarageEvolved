@@ -10,6 +10,7 @@ import com.betacom.objects.Car;
 import com.betacom.objects.Motorbike;
 import com.betacom.services.VehicleService;
 import com.betacom.utils.FileLoader;
+import com.betacom.utils.Printer;
 
 public class Menu {
 
@@ -29,7 +30,8 @@ public class Menu {
                 case 2 -> updateVehicle();
                 case 3 -> searchVehicle();
                 case 4 -> deleteVehicle();
-                case 5 -> exit();
+                case 5 -> printVehicles();
+                case 6 -> exit();
                 default -> msg("Scelta non valida.");
             }
             pause();
@@ -48,7 +50,8 @@ public class Menu {
         System.out.println("   2  →  Modifica un veicolo");
         System.out.println("   3  →  Cerca un veicolo");
         System.out.println("   4  →  Elimina un veicolo");
-        System.out.println("   5  →  Esci");
+        System.out.println("   5  →  Stampa tutti i veicoli");
+        System.out.println("   6  →  Esci");
         System.out.println(LINE);
         System.out.print("   Scelta: ");
     }
@@ -201,7 +204,29 @@ public class Menu {
         msg("Veicolo eliminato.");
     }
 
-    // ─── 5 · Esci ─────────────────────────────────────────────────────────────
+    // ─── 5 · Stampa veicoli ───────────────────────────────────────────────────
+
+    private void printVehicles() {
+        clear();
+        System.out.println(LINE);
+        System.out.println("   VEICOLI NEL DB");
+        System.out.println(LINE);
+
+        var cars   = service.findAllCars();
+        var motos  = service.findAllMotorbikes();
+        var bikes  = service.findAllBikes();
+
+        if (cars.isEmpty() && motos.isEmpty() && bikes.isEmpty()) {
+            msg("Nessun veicolo nel DB. Usa l'opzione 1 per caricarli.");
+            return;
+        }
+
+        Printer.printCars(cars);
+        Printer.printMotorbikes(motos);
+        Printer.printBikes(bikes);
+    }
+
+    // ─── 6 · Esci ─────────────────────────────────────────────────────────────
 
     private void exit() {
         SQLConfiguration.getInstance().closeConnection();
