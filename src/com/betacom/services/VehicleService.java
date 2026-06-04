@@ -7,7 +7,6 @@ import com.betacom.config.SQLConfiguration;
 import com.betacom.dao.entity.BikeDao;
 import com.betacom.dao.entity.CarDao;
 import com.betacom.dao.entity.MotorbikeDao;
-import com.betacom.dao.entity.VehicleDao;
 import com.betacom.dao.lookup.BrakeTypeDao;
 import com.betacom.dao.lookup.ColorDao;
 import com.betacom.dao.lookup.SuspensionTypeDao;
@@ -35,7 +34,6 @@ public class VehicleService {
 	private final CarDao                     carDao      = new CarDao();
 	private final MotorbikeDao               motoDao     = new MotorbikeDao();
 	private final BikeDao                    bikeDao     = new BikeDao();
-	private final VehicleDao                 vehicleDao  = new CarDao();
 	private final VehicleTypeDao             typeDao     = new VehicleTypeDao();
 	private final VehicleBrandDao            brandDao    = new VehicleBrandDao();
 	private final VehicleModelDao            modelDao    = new VehicleModelDao();
@@ -44,6 +42,22 @@ public class VehicleService {
 	private final BrakeTypeDao               brakeDao    = new BrakeTypeDao();
 	private final SuspensionTypeDao          suspDao     = new SuspensionTypeDao();
 	private final SQLConfiguration           config      = SQLConfiguration.getInstance();
+
+	// ─── Operazioni dirette sulla tabella vehicles ──────────────────────────────
+	// Metodi privati per evitare il bug di vehicleDao=new CarDao()
+	// (CarDao sovrascrive delete() con la versione per la tabella cars)
+
+	private int insertVehicleRow(Integer typeId, Integer modelId, Integer alimentId,
+								 Integer brandId, Integer colorId,
+								 Integer wheels, Integer gears, Integer year) {
+		return db.save(config.getQuery("update.vehicle.insert"), true,
+				typeId, modelId, alimentId, brandId, colorId, wheels, gears,
+				java.sql.Date.valueOf(year + "-01-01"));
+	}
+
+	private void deleteVehicleRow(Integer vehicleId) {
+		db.save(config.getQuery("update.vehicle.delete"), false, vehicleId);
+	}
 
 	// -------------------------
 	// SETUP — gestione dati
@@ -211,7 +225,7 @@ public class VehicleService {
 						 String plate, Integer cc, Integer doors) {
 		try {
 			config.setTransaction();
-			int idVehicle = vehicleDao.insert(typeId, modelId, alimentId, brandId, colorId, wheels, gears, year);
+			int idVehicle = insertVehicleRow(typeId, modelId, alimentId, brandId, colorId, wheels, gears, year);
 			int idCar     = carDao.insert(idVehicle, plate, cc, doors);
 			config.commit();
 			log.info("Auto inserita — id_vehicle:{} id_car:{}", idVehicle, idCar);
@@ -229,7 +243,7 @@ public class VehicleService {
 							   String plate, Integer cc) {
 		try {
 			config.setTransaction();
-			int idVehicle   = vehicleDao.insert(typeId, modelId, alimentId, brandId, colorId, wheels, gears, year);
+			int idVehicle   = insertVehicleRow(typeId, modelId, alimentId, brandId, colorId, wheels, gears, year);
 			int idMotorbike = motoDao.insert(idVehicle, plate, cc);
 			config.commit();
 			log.info("Moto inserita — id_vehicle:{} id_motorbike:{}", idVehicle, idMotorbike);
@@ -247,7 +261,7 @@ public class VehicleService {
 						  Integer idBrakeType, Integer idSuspensionType, Boolean foldable) {
 		try {
 			config.setTransaction();
-			int idVehicle = vehicleDao.insert(typeId, modelId, alimentId, brandId, colorId, wheels, gears, year);
+			int idVehicle = insertVehicleRow(typeId, modelId, alimentId, brandId, colorId, wheels, gears, year);
 			int idBike    = bikeDao.insert(idVehicle, idBrakeType, idSuspensionType, foldable);
 			config.commit();
 			log.info("Bici inserita — id_vehicle:{} id_bike:{}", idVehicle, idBike);
@@ -267,7 +281,7 @@ public class VehicleService {
 		try {
 			config.setTransaction();
 			carDao.delete(car.getIdCar());
-			vehicleDao.delete(car.getId());
+			deleteVehicleRow(car.getId());
 			config.commit();
 			log.info("Auto eliminata — {} {}", car.getBrand(), car.getModel());
 		} catch (Exception e) {
@@ -280,7 +294,7 @@ public class VehicleService {
 		try {
 			config.setTransaction();
 			motoDao.delete(m.getIdMotorbike());
-			vehicleDao.delete(m.getId());
+			deleteVehicleRow(m.getId());
 			config.commit();
 			log.info("Moto eliminata — {} {}", m.getBrand(), m.getModel());
 		} catch (Exception e) {
@@ -293,7 +307,7 @@ public class VehicleService {
 		try {
 			config.setTransaction();
 			bikeDao.delete(b.getIdBike());
-			vehicleDao.delete(b.getId());
+			deleteVehicleRow(b.getId());
 			config.commit();
 			log.info("Bici eliminata — {} {}", b.getBrand(), b.getModel());
 		} catch (Exception e) {
